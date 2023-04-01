@@ -3,12 +3,14 @@ mod audio;
 mod loading;
 mod menu;
 mod player;
+mod environment;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
 use crate::loading::LoadingPlugin;
 use crate::menu::MenuPlugin;
 use crate::player::PlayerPlugin;
+use crate::environment::EnvironmentPlugin;
 
 use bevy::app::App;
 #[cfg(debug_assertions)]
@@ -38,7 +40,8 @@ impl Plugin for GamePlugin {
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
-            .add_plugin(PlayerPlugin);
+            .add_plugin(PlayerPlugin)
+            .add_plugin(EnvironmentPlugin);
 
         #[cfg(debug_assertions)]
         {
