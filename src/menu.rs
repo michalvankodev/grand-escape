@@ -30,12 +30,15 @@ impl Default for ButtonColors {
     }
 }
 
+#[derive (Component)]
+pub struct MainCamera;
+
 fn setup_menu(
     mut commands: Commands,
     font_assets: Res<FontAssets>,
     button_colors: Res<ButtonColors>,
 ) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2dBundle::default()).insert(MainCamera);
     commands
         .spawn(ButtonBundle {
             style: Style {
