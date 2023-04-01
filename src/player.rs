@@ -20,15 +20,10 @@ impl Plugin for PlayerPlugin {
     }
 }
 
-fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>, assets: Res<Assets<Image>>) {
+fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
     // Spawn player to the center of the map
-    let texture = textures.boat.clone();
-    let texture_descriptor = &assets.get(&texture).unwrap().texture_descriptor;
-    let texture_width = texture_descriptor.size.width;
-    let texture_height = texture_descriptor.size.height;
-    let center_x = MAP_WIDTH / 2; //- texture_width / 2;
-    let center_y = MAP_HEIGHT / 2; //- texture_height / 2;
-    info!("center = {} {}", center_x, center_y);
+    let center_x = MAP_WIDTH / 2;
+    let center_y = MAP_HEIGHT / 2;
 
     commands
         .spawn(SpriteBundle {
@@ -60,7 +55,6 @@ fn move_player(
 }
 
 fn camera_follow_player(
-    commands: Commands,
     mut camera_query: Query<&mut Transform, (With<MainCamera>, Without<Player>)>,
     player_query: Query<&Transform, With<Player>>,
 ) {

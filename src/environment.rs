@@ -1,6 +1,3 @@
-use std::ops::Range;
-
-use crate::actions::Actions;
 use crate::loading::TextureAssets;
 use crate::GameState;
 use bevy::prelude::*;
@@ -16,23 +13,6 @@ pub struct WaterTile;
 #[derive(Clone)]
 enum MapObject {}
 
-#[derive(Clone)]
-struct MapDefinition {
-    width: u32,
-    height: u32,
-    map_objects: Vec<Vec<MapObject>>,
-}
-
-impl MapDefinition {
-    fn new() -> MapDefinition {
-        MapDefinition {
-            width: MAP_WIDTH,
-            height: MAP_HEIGHT,
-            map_objects: vec![],
-        }
-    }
-}
-
 const TILE_SIZE: u32 = 64;
 
 /// This plugin handles player related stuff like movement
@@ -44,9 +24,8 @@ impl Plugin for EnvironmentPlugin {
 }
 
 fn init_water(mut commands: Commands, textures: Res<TextureAssets>) {
-    let map_def = MapDefinition::new();
-    let water_tile_x_positions = (0..map_def.width / TILE_SIZE).map(|x| x * TILE_SIZE + TILE_SIZE / 2);
-    let water_tile_y_positions = (0..map_def.height / TILE_SIZE).map(|y| y * TILE_SIZE + TILE_SIZE / 2);
+    let water_tile_x_positions = (0..MAP_WIDTH / TILE_SIZE).map(|x| x * TILE_SIZE + TILE_SIZE / 2);
+    let water_tile_y_positions = (0..MAP_HEIGHT / TILE_SIZE).map(|y| y * TILE_SIZE + TILE_SIZE / 2);
     let map_matrix = water_tile_x_positions
         .flat_map(move |x| water_tile_y_positions.clone().map(move |y| (x, y)));
     // map_matrix.collect::<Vec<(u32,u32)>>().iter().for_each(|(x,y)| {
