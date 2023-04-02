@@ -58,30 +58,6 @@ impl Plugin for EnvironmentPlugin {
     }
 }
 
-// fn init_water(mut commands: Commands, textures: Res<TextureAssets>) {
-//     let water_tile_x_positions = (0..(MAP_WIDTH / WATER_TILE_SIZE) as u32)
-//         .map(|x| x as f32 * WATER_TILE_SIZE + WATER_TILE_SIZE / 2.);
-//     let water_tile_y_positions = (0..(MAP_HEIGHT / WATER_TILE_SIZE) as u32)
-//         .map(|y| y as f32 * WATER_TILE_SIZE + WATER_TILE_SIZE / 2.);
-//     let map_matrix = water_tile_x_positions
-//         .flat_map(move |x| water_tile_y_positions.clone().map(move |y| (x, y)));
-//     // map_matrix.collect::<Vec<(u32,u32)>>().iter().for_each(|(x,y)| {
-//     map_matrix.for_each(|(x, y)| {
-//         commands
-//             .spawn(SpriteBundle {
-//                 texture: textures.water_tile.clone(),
-//                 transform: Transform::from_translation(Vec3::new(x, y, 1.)),
-//                 ..Default::default()
-//             })
-//             .insert(WaterTile);
-//     });
-//
-//     commands.insert_resource(MapObject {
-//         water_top: MAP_HEIGHT - WATER_TILE_SIZE / 2.,
-//         border_top: 0.
-//     })
-// }
-
 fn spawn_water(
     mut commands: Commands,
     textures: Res<TextureAssets>,

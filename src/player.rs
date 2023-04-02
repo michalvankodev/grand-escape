@@ -124,10 +124,11 @@ fn camera_follow_player(
 
 fn detect_collisions(
     collidables_query: Query<(&Transform, &Collidable)>,
-    player_query: Query<&Transform, With<Player>>,
+    mut player_query: Query<(&Transform, &mut Handle<Image>), With<Player>>,
+    textures: Res<TextureAssets>,
     mut state: ResMut<NextState<GameState>>,
 ) {
-    let player_transform = player_query.get_single().unwrap();
+    let (player_transform, mut texture_handle) = player_query.get_single_mut().unwrap();
     let player_size = Vec2::new(PLAYER_WIDTH, PLAYER_HEIGHT);
     for (collidable_transform, collidable) in collidables_query.iter() {
         // let distance = player_transform.translation.distance_squared(collidable.translation);
@@ -140,8 +141,9 @@ fn detect_collisions(
             collidable_transform.translation,
             collidable.size,
         );
-        if Option::is_some(&collision){
-            state.set(GameState::Menu);
+        if Option::is_some(&collision) {
+            *texture_handle = textures.boat_crashed.clone();
+            state.set(GameState::End);
         }
     }
 }

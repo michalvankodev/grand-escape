@@ -40,6 +40,8 @@ pub struct TextureAssets {
     pub texture_bevy: Handle<Image>,
     #[asset(path = "textures/boat-28x64.png")]
     pub boat: Handle<Image>,
+    #[asset(path = "textures/boat-crashed-28x64.png")]
+    pub boat_crashed: Handle<Image>,
     #[asset(path = "textures/water8-64x64.png")]
     pub water_tile: Handle<Image>,
     #[asset(path = "textures/border1-64x64.png")]
