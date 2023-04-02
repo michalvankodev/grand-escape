@@ -50,4 +50,6 @@ pub struct TextureAssets {
     pub border_tile3: Handle<Image>,
     #[asset(path = "textures/border4-64x64.png")]
     pub border_tile4: Handle<Image>,
+    #[asset(path = "textures/sand1-64x64.png")]
+    pub land_tile: Handle<Image>,
 }

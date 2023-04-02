@@ -12,6 +12,14 @@ pub const MAP_HEIGHT: f32 = 576.;
 pub struct EnvironmentPlugin;
 
 #[derive(Component)]
+pub struct Collidable {
+    pub size: Vec2,
+}
+
+#[derive(Component)]
+pub struct LandTile;
+
+#[derive(Component)]
 pub struct BorderTile;
 
 #[derive(Component)]
@@ -21,6 +29,7 @@ pub struct WaterTile;
 pub struct MapObject {
     water_top: f32,
     border_top: f32,
+    land_top: f32,
 }
 
 impl Default for MapObject {
@@ -28,10 +37,12 @@ impl Default for MapObject {
         MapObject {
             water_top: 0.,
             border_top: 0.,
+            land_top: 0.,
         }
     }
 }
 
+const LAND_TILE_SIZE: f32 = 64.;
 const WATER_TILE_SIZE: f32 = 64.;
 const BORDER_TILE_HEIGHT: f32 = 64.;
 
@@ -42,7 +53,8 @@ impl Plugin for EnvironmentPlugin {
         app.init_resource::<MapObject>()
             // .add_system(init_water.in_schedule(OnEnter(GameState::Playing)))
             .add_system(spawn_water.in_set(OnUpdate(GameState::Playing)))
-            .add_system(spawn_border.in_set(OnUpdate(GameState::Playing)));
+            .add_system(spawn_border.in_set(OnUpdate(GameState::Playing)))
+            .add_system(spawn_land.in_set(OnUpdate(GameState::Playing)));
     }
 }
 
@@ -74,7 +86,7 @@ fn spawn_water(
     mut commands: Commands,
     textures: Res<TextureAssets>,
     camera_query: Query<&Transform, With<MainCamera>>,
-    map_object: Res<MapObject>,
+    mut map_object: ResMut<MapObject>,
 ) {
     let camera_transform = camera_query.get_single().unwrap();
     let y_where_water_should_be_generated = camera_transform.translation.y + 800.;
@@ -97,17 +109,14 @@ fn spawn_water(
             })
             .insert(WaterTile);
     });
-    commands.insert_resource(MapObject {
-        water_top: water_tile_y_position,
-        border_top: map_object.border_top,
-    })
+    map_object.water_top = water_tile_y_position;
 }
 
 fn spawn_border(
     mut commands: Commands,
     textures: Res<TextureAssets>,
     camera_query: Query<&Transform, With<MainCamera>>,
-    map_object: Res<MapObject>,
+    mut map_object: ResMut<MapObject>,
 ) {
     let camera_transform = camera_query.get_single().unwrap();
     let y_where_border_should_be_generated = camera_transform.translation.y + 800.;
@@ -142,7 +151,7 @@ fn spawn_border(
         .spawn(SpriteBundle {
             texture: border_tiles.choose(&mut rng).unwrap().clone(),
             transform: Transform::from_translation(Vec3::new(
-                MAP_WIDTH - BORDER_TILE_HEIGHT / 2., // TODO Width
+                MAP_WIDTH - BORDER_TILE_HEIGHT / 2.,
                 border_y,
                 1.1,
             )),
@@ -150,8 +159,53 @@ fn spawn_border(
         })
         .insert(BorderTile);
 
-    commands.insert_resource(MapObject {
-        water_top: map_object.water_top,
-        border_top: border_y,
-    });
+    map_object.border_top = border_y;
+}
+
+fn spawn_land(
+    mut commands: Commands,
+    textures: Res<TextureAssets>,
+    camera_query: Query<&Transform, With<MainCamera>>,
+    mut map_object: ResMut<MapObject>,
+) {
+    let camera_transform = camera_query.get_single().unwrap();
+    let y_where_land_should_be_generated = camera_transform.translation.y + 800.;
+
+    if map_object.land_top > y_where_land_should_be_generated {
+        return;
+    }
+    // Left side
+    let land_y = map_object.land_top + LAND_TILE_SIZE;
+    commands
+        .spawn(SpriteBundle {
+            texture: textures.land_tile.clone(),
+            transform: Transform::from_translation(Vec3::new(
+                0. - LAND_TILE_SIZE / 2.,
+                land_y,
+                1.1,
+            )),
+            ..Default::default()
+        })
+        .insert(LandTile)
+        .insert(Collidable {
+            size: Vec2::new(LAND_TILE_SIZE, LAND_TILE_SIZE),
+        });
+
+    // Right side
+    commands
+        .spawn(SpriteBundle {
+            texture: textures.land_tile.clone(),
+            transform: Transform::from_translation(Vec3::new(
+                MAP_WIDTH + LAND_TILE_SIZE / 2.,
+                land_y,
+                1.1,
+            )),
+            ..Default::default()
+        })
+        .insert(LandTile)
+        .insert(Collidable {
+            size: Vec2::new(LAND_TILE_SIZE, LAND_TILE_SIZE),
+        });
+
+    map_object.land_top = land_y;
 }

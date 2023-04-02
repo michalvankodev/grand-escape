@@ -1,11 +1,15 @@
 use std::f32::consts::PI;
 
 use crate::actions::Actions;
-use crate::environment::{MAP_HEIGHT, MAP_WIDTH};
+use crate::environment::{Collidable, MAP_HEIGHT, MAP_WIDTH};
 use crate::loading::TextureAssets;
 use crate::menu::MainCamera;
 use crate::GameState;
 use bevy::prelude::*;
+use bevy::sprite::collide_aabb::collide;
+
+pub const PLAYER_HEIGHT: f32 = 64.;
+pub const PLAYER_WIDTH: f32 = 28.;
 
 pub struct PlayerPlugin;
 
@@ -34,6 +38,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(spawn_player.in_schedule(OnEnter(GameState::Playing)))
             .add_system(move_player.in_set(OnUpdate(GameState::Playing)))
+            .add_system(detect_collisions.in_set(OnUpdate(GameState::Playing)))
             .add_system(
                 camera_follow_player
                     .in_set(OnUpdate(GameState::Playing))
@@ -52,7 +57,8 @@ fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
     commands
         .spawn(SpriteBundle {
             texture: textures.boat.clone(),
-            transform: Transform::from_translation(Vec3::new(center_x, center_y, 2.)).with_rotation(Quat::from_rotation_z(0.)),
+            transform: Transform::from_translation(Vec3::new(center_x, center_y, 2.))
+                .with_rotation(Quat::from_rotation_z(0.)),
             // transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.)),
             ..Default::default()
         })
@@ -75,18 +81,10 @@ fn continuous_movement(
     );
 }
 
-fn rotate_transform_to_movement(
-    mut transform_query: Query<(&mut Transform, &Movement)>
-) {
+fn rotate_transform_to_movement(mut transform_query: Query<(&mut Transform, &Movement)>) {
     for (mut transform, movement) in transform_query.iter_mut() {
-        // let z = transform.translation.z;
-        // transform.look_to(Vec3::new(-movement.vector.x, movement.vector.y, z), Vec3::new(0.0, 1.0, 0.)); 
-        // let pos = transform.translation.truncate();
-        // let angle = (movement.vector + pos).angle_between(pos);
-        // transform.rotation = Quat::from_rotation_z(angle);
-        // info!("rotation {}, vector {}, translation {}", angle, movement.vector, transform.translation.truncate());
         let angle = movement.vector.x * PI / 2.;
-        transform.rotation = Quat::from_rotation_z(- angle);
+        transform.rotation = Quat::from_rotation_z(-angle);
         // info!("rotation {}, vector {}, translation {}", angle, movement.vector, transform.translation.truncate());
     }
 }
@@ -122,4 +120,28 @@ fn camera_follow_player(
         player_translation.y,
         camera_transform.translation.z,
     ));
+}
+
+fn detect_collisions(
+    collidables_query: Query<(&Transform, &Collidable)>,
+    player_query: Query<&Transform, With<Player>>,
+    mut state: ResMut<NextState<GameState>>,
+) {
+    let player_transform = player_query.get_single().unwrap();
+    let player_size = Vec2::new(PLAYER_WIDTH, PLAYER_HEIGHT);
+    for (collidable_transform, collidable) in collidables_query.iter() {
+        // let distance = player_transform.translation.distance_squared(collidable.translation);
+        //  if distance < 64. {
+        //      state.set(GameState::Menu);
+        //  }
+        let collision = collide(
+            player_transform.translation,
+            player_size,
+            collidable_transform.translation,
+            collidable.size,
+        );
+        if Option::is_some(&collision){
+            state.set(GameState::Menu);
+        }
+    }
 }
