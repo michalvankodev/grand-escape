@@ -1,8 +1,10 @@
+use std::f32::consts::PI;
+
 use crate::actions::Actions;
-use crate::environment::{MAP_WIDTH, MAP_HEIGHT};
+use crate::environment::{MAP_HEIGHT, MAP_WIDTH};
 use crate::loading::TextureAssets;
-use crate::GameState;
 use crate::menu::MainCamera;
+use crate::GameState;
 use bevy::prelude::*;
 
 pub struct PlayerPlugin;
@@ -10,13 +12,35 @@ pub struct PlayerPlugin;
 #[derive(Component)]
 pub struct Player;
 
+// TODO move this into own plugin
+#[derive(Component)]
+pub struct Movement {
+    speed: f32,
+    vector: Vec2,
+}
+
+impl Default for Movement {
+    fn default() -> Self {
+        Movement {
+            speed: 150.0,
+            vector: Vec2::new(0., 1.),
+        }
+    }
+}
+
 /// This plugin handles player related stuff like movement
 /// Player logic is only active during the State `GameState::Playing`
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(spawn_player.in_schedule(OnEnter(GameState::Playing)))
             .add_system(move_player.in_set(OnUpdate(GameState::Playing)))
-            .add_system(camera_follow_player.in_set(OnUpdate(GameState::Playing)).after(move_player));
+            .add_system(
+                camera_follow_player
+                    .in_set(OnUpdate(GameState::Playing))
+                    .after(move_player),
+            )
+            .add_system(continuous_movement.in_set(OnUpdate(GameState::Playing)))
+            .add_system(rotate_transform_to_movement.in_set(OnUpdate(GameState::Playing)));
     }
 }
 
@@ -28,29 +52,62 @@ fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
     commands
         .spawn(SpriteBundle {
             texture: textures.boat.clone(),
-            transform: Transform::from_translation(Vec3::new(center_x as f32, center_y as f32, 2.)),
+            transform: Transform::from_translation(Vec3::new(center_x as f32, center_y as f32, 2.)).with_rotation(Quat::from_rotation_z(0.)),
             // transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.)),
             ..Default::default()
         })
-        .insert(Player);
+        .insert(Player)
+        .insert(Movement {
+            ..Default::default()
+        });
 }
 
+fn continuous_movement(
+    time: Res<Time>,
+    mut movement_query: Query<(&mut Transform, &Movement), With<Movement>>,
+) {
+    // TODO apply to all the things
+    let (mut transform, movement) = movement_query.get_single_mut().unwrap();
+    transform.translation += Vec3::new(
+        movement.vector.x * movement.speed * time.delta_seconds(),
+        movement.vector.y * movement.speed * time.delta_seconds(),
+        0.,
+    );
+}
+
+fn rotate_transform_to_movement(
+    mut transform_query: Query<(&mut Transform, &Movement)>
+) {
+    for (mut transform, movement) in transform_query.iter_mut() {
+        // let z = transform.translation.z;
+        // transform.look_to(Vec3::new(-movement.vector.x, movement.vector.y, z), Vec3::new(0.0, 1.0, 0.)); 
+        // let pos = transform.translation.truncate();
+        // let angle = (movement.vector + pos).angle_between(pos);
+        // transform.rotation = Quat::from_rotation_z(angle);
+        // info!("rotation {}, vector {}, translation {}", angle, movement.vector, transform.translation.truncate());
+        let angle = movement.vector.x * PI / 2.;
+        transform.rotation = Quat::from_rotation_z(- angle);
+        info!("rotation {}, vector {}, translation {}", angle, movement.vector, transform.translation.truncate());
+    }
+}
+
+// TODO breaking optional
 fn move_player(
     time: Res<Time>,
     actions: Res<Actions>,
-    mut player_query: Query<&mut Transform, With<Player>>,
+    mut player_query: Query<&mut Movement, With<Player>>,
 ) {
     if actions.player_movement.is_none() {
         return;
     }
-    let speed = 150.;
-    let movement = Vec3::new(
-        actions.player_movement.unwrap().x * speed * time.delta_seconds(),
-        actions.player_movement.unwrap().y * speed * time.delta_seconds(),
-        0.,
+    let turn_rate = 1.8;
+    let movement = Vec2::new(
+        actions.player_movement.unwrap().x * turn_rate * time.delta_seconds(),
+        actions.player_movement.unwrap().y * turn_rate * time.delta_seconds(),
     );
-    for mut player_transform in &mut player_query {
-        player_transform.translation += movement;
+    for mut player_movement in &mut player_query {
+        player_movement.vector += movement;
+        player_movement.vector = player_movement.vector.normalize()
     }
 }
 
@@ -58,7 +115,11 @@ fn camera_follow_player(
     mut camera_query: Query<&mut Transform, (With<MainCamera>, Without<Player>)>,
     player_query: Query<&Transform, With<Player>>,
 ) {
-  let player_translation = player_query.get_single().unwrap().translation;
-  let mut camera_transform = camera_query.get_single_mut().unwrap();
-  *camera_transform = Transform::from_translation(Vec3::new((MAP_WIDTH / 2) as f32, player_translation.y, camera_transform.translation.z));
+    let player_translation = player_query.get_single().unwrap().translation;
+    let mut camera_transform = camera_query.get_single_mut().unwrap();
+    *camera_transform = Transform::from_translation(Vec3::new(
+        (MAP_WIDTH / 2) as f32,
+        player_translation.y,
+        camera_transform.translation.z,
+    ));
 }

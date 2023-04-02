@@ -24,9 +24,10 @@ pub struct Actions {
 pub fn set_movement_actions(mut actions: ResMut<Actions>, keyboard_input: Res<Input<KeyCode>>) {
     let player_movement = Vec2::new(
         get_movement(GameControl::Right, &keyboard_input)
-            - get_movement(GameControl::Left, &keyboard_input),
-        get_movement(GameControl::Up, &keyboard_input)
-            - get_movement(GameControl::Down, &keyboard_input),
+            - get_movement(GameControl::Left, &keyboard_input), 
+        0.0
+        // get_movement(GameControl::Up, &keyboard_input)
+        //     - get_movement(GameControl::Down, &keyboard_input),
     );
 
     if player_movement != Vec2::ZERO {
