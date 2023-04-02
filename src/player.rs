@@ -87,7 +87,7 @@ fn rotate_transform_to_movement(
         // info!("rotation {}, vector {}, translation {}", angle, movement.vector, transform.translation.truncate());
         let angle = movement.vector.x * PI / 2.;
         transform.rotation = Quat::from_rotation_z(- angle);
-        info!("rotation {}, vector {}, translation {}", angle, movement.vector, transform.translation.truncate());
+        // info!("rotation {}, vector {}, translation {}", angle, movement.vector, transform.translation.truncate());
     }
 }
 
