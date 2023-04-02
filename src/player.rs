@@ -46,13 +46,13 @@ impl Plugin for PlayerPlugin {
 
 fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
     // Spawn player to the center of the map
-    let center_x = MAP_WIDTH / 2;
-    let center_y = MAP_HEIGHT / 2;
+    let center_x = MAP_WIDTH / 2.;
+    let center_y = MAP_HEIGHT / 2.;
 
     commands
         .spawn(SpriteBundle {
             texture: textures.boat.clone(),
-            transform: Transform::from_translation(Vec3::new(center_x as f32, center_y as f32, 2.)).with_rotation(Quat::from_rotation_z(0.)),
+            transform: Transform::from_translation(Vec3::new(center_x, center_y, 2.)).with_rotation(Quat::from_rotation_z(0.)),
             // transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.)),
             ..Default::default()
         })
@@ -118,7 +118,7 @@ fn camera_follow_player(
     let player_translation = player_query.get_single().unwrap().translation;
     let mut camera_transform = camera_query.get_single_mut().unwrap();
     *camera_transform = Transform::from_translation(Vec3::new(
-        (MAP_WIDTH / 2) as f32,
+        MAP_WIDTH / 2.,
         player_translation.y,
         camera_transform.translation.z,
     ));

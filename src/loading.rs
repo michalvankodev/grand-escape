@@ -42,4 +42,12 @@ pub struct TextureAssets {
     pub boat: Handle<Image>,
     #[asset(path = "textures/water8-64x64.png")]
     pub water_tile: Handle<Image>,
+    #[asset(path = "textures/border1-64x64.png")]
+    pub border_tile1: Handle<Image>,
+    #[asset(path = "textures/border2-64x64.png")]
+    pub border_tile2: Handle<Image>,
+    #[asset(path = "textures/border3-64x64.png")]
+    pub border_tile3: Handle<Image>,
+    #[asset(path = "textures/border4-64x64.png")]
+    pub border_tile4: Handle<Image>,
 }
