@@ -1,6 +1,7 @@
 use std::f32::consts::PI;
 
 use crate::actions::Actions;
+use crate::enemy::Bullet;
 use crate::environment::{Collidable, MAP_HEIGHT, MAP_WIDTH};
 use crate::loading::TextureAssets;
 use crate::menu::MainCamera;
@@ -15,6 +16,12 @@ pub struct PlayerPlugin;
 
 #[derive(Component)]
 pub struct Player;
+
+#[derive(Component)]
+pub struct Health {
+    pub health_amount: u32,
+    pub size: Vec2,
+}
 
 // TODO move this into own plugin
 #[derive(Component)]
@@ -45,6 +52,7 @@ impl Plugin for PlayerPlugin {
                     .after(move_player),
             )
             .add_system(continuous_movement.in_set(OnUpdate(GameState::Playing)))
+            .add_system(detect_bullet_collisions.in_set(OnUpdate(GameState::Playing)))
             .add_system(rotate_transform_to_movement.in_set(OnUpdate(GameState::Playing)));
     }
 }
@@ -63,6 +71,10 @@ fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
             ..Default::default()
         })
         .insert(Player)
+        .insert(Health {
+            health_amount: 10,
+            size: Vec2::new(28., 64.),
+        })
         .insert(Movement {
             ..Default::default()
         });
@@ -145,6 +157,30 @@ fn detect_collisions(
         if Option::is_some(&collision) {
             *texture_handle = textures.boat_crashed.clone();
             state.set(GameState::End);
+        }
+    }
+}
+
+fn detect_bullet_collisions(
+    mut commands: Commands,
+    bullets_query: Query<(Entity, &Transform, &Bullet)>,
+    mut health_query: Query<(&Transform, &mut Health, Entity)>,
+) {
+    for (bullet_entity, bullet_transform, bullet) in bullets_query.iter() {
+        for (health_transform, mut health, entity) in health_query.iter_mut() {
+            if bullet.shooter == entity {
+                return;
+            }
+            let collision = collide(
+                bullet_transform.translation,
+                bullet.size,
+                health_transform.translation,
+                health.size,
+            );
+            if Option::is_some(&collision) {
+                commands.entity(bullet_entity).despawn();
+                health.health_amount = health.health_amount - bullet.damage;
+            }
         }
     }
 }

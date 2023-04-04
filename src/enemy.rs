@@ -7,7 +7,7 @@ use crate::{
     environment::{LAND_TILE_SIZE, MAP_WIDTH},
     loading::TextureAssets,
     menu::MainCamera,
-    player::{Movement, Player},
+    player::{Health, Movement, Player},
     GameState,
 };
 
@@ -43,17 +43,20 @@ impl Default for Enemy {
 
 #[derive(Component)]
 pub struct Bullet {
-    damage: u32,
+    pub shooter: Entity,
+    pub damage: u32,
+    pub size: Vec2,
 }
 
-impl Default for Bullet {
-   fn default() -> Self {
-       Bullet {
-            damage: 1
-       }
-   } 
+impl Bullet {
+    fn new(shooter: Entity) -> Self {
+        Bullet {
+            shooter,
+            damage: 1,
+            size: Vec2::new(5., 5.),
+        }
+    }
 }
-
 
 enum SpawnPosition {
     Left,
@@ -104,6 +107,10 @@ fn spawn_enemies(
                 })
                 .insert(Enemy {
                     ..Default::default()
+                })
+                .insert(Health {
+                    health_amount: 3,
+                    size: Vec2::new(64., 64.),
                 });
             let mut rng = rand::thread_rng();
             let duration = rng.gen_range(3500..5000);
@@ -151,11 +158,11 @@ fn enemies_face_player(
 
 fn enemies_shoot_at_player(
     mut commands: Commands,
-    mut shooters_query: Query<(&mut Enemy, &Transform)>,
+    mut shooters_query: Query<(&mut Enemy, &Transform, Entity)>,
     time: Res<Time>,
     textures: Res<TextureAssets>,
 ) {
-    for (mut enemy, transform) in shooters_query.iter_mut() {
+    for (mut enemy, transform, enemy_entity) in shooters_query.iter_mut() {
         enemy.shooting_timer.tick(time.delta());
         if enemy.shooting_timer.finished() {
             let enemy_translation = transform.translation.truncate();
@@ -169,9 +176,7 @@ fn enemies_shoot_at_player(
                     )),
                     ..Default::default()
                 })
-                .insert(Bullet {
-                    ..Default::default()
-                })
+                .insert(Bullet::new(enemy_entity))
                 .insert(Movement {
                     vector: enemy.vector,
                     speed: 350.0,
