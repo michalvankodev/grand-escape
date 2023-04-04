@@ -42,9 +42,9 @@ impl Default for MapObject {
     }
 }
 
-const LAND_TILE_SIZE: f32 = 64.;
-const WATER_TILE_SIZE: f32 = 64.;
-const BORDER_TILE_HEIGHT: f32 = 64.;
+pub const LAND_TILE_SIZE: f32 = 64.;
+pub const WATER_TILE_SIZE: f32 = 64.;
+pub const BORDER_TILE_HEIGHT: f32 = 64.;
 
 /// This plugin handles player related stuff like movement
 /// Player logic is only active during the State `GameState::Playing`

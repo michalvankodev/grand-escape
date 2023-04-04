@@ -1,9 +1,15 @@
-use std::time::Duration;
+use std::{f32::consts::PI, time::Duration};
 
-use bevy::prelude::*;
+use bevy::{prelude::*, time::Stopwatch};
 use rand::Rng;
 
-use crate::{loading::TextureAssets, environment::MAP_WIDTH, menu::MainCamera, GameState};
+use crate::{
+    environment::{LAND_TILE_SIZE, MAP_WIDTH},
+    loading::TextureAssets,
+    menu::MainCamera,
+    player::{Movement, Player},
+    GameState,
+};
 
 pub struct EnemyPlugin;
 
@@ -21,13 +27,33 @@ impl Default for EnemySpawnTimers {
 }
 
 #[derive(Component)]
-pub struct Enemy;
+pub struct Enemy {
+    vector: Vec2,
+    shooting_timer: Timer,
+}
 
 impl Default for Enemy {
     fn default() -> Self {
-        Enemy
+        Enemy {
+            vector: Vec2::new(0., 0.),
+            shooting_timer: Timer::new(Duration::from_secs(2), TimerMode::Repeating),
+        }
     }
 }
+
+#[derive(Component)]
+pub struct Bullet {
+    damage: u32,
+}
+
+impl Default for Bullet {
+   fn default() -> Self {
+       Bullet {
+            damage: 1
+       }
+   } 
+}
+
 
 enum SpawnPosition {
     Left,
@@ -37,7 +63,11 @@ enum SpawnPosition {
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<EnemySpawnTimers>()
-            .add_system(spawn_enemies.in_set(OnUpdate(GameState::Playing)));
+            .add_system(spawn_enemies.in_set(OnUpdate(GameState::Playing)))
+            .add_system(enemies_shoot_at_player.in_set(OnUpdate(GameState::Playing)))
+            .add_system(despawn_enemies.in_set(OnUpdate(GameState::Playing)))
+            .add_system(despawn_blind_bullets.in_set(OnUpdate(GameState::Playing)))
+            .add_system(enemies_face_player.in_set(OnUpdate(GameState::Playing)));
     }
 }
 
@@ -52,7 +82,7 @@ fn spawn_enemies(
     time: Res<Time>,
     mut spawn_timers: ResMut<EnemySpawnTimers>,
     textures: Res<TextureAssets>,
-    camera_query: Query<&Transform, With<MainCamera>>
+    camera_query: Query<&Transform, With<MainCamera>>,
 ) {
     let camera_position = camera_query.get_single().unwrap().translation.y;
     let next_spawn_position = camera_position + 600.;
@@ -60,7 +90,11 @@ fn spawn_enemies(
         timer.tick(time.delta());
         if timer.finished() {
             let position = get_random_spawn_position();
-            let x = if let SpawnPosition::Right = position { MAP_WIDTH } else { 0.0 };
+            let x = if let SpawnPosition::Right = position {
+                MAP_WIDTH + LAND_TILE_SIZE / 2.
+            } else {
+                0.0 - LAND_TILE_SIZE / 2.
+            };
             commands
                 .spawn(SpriteBundle {
                     texture: textures.enemy_cannon.clone(),
@@ -71,6 +105,9 @@ fn spawn_enemies(
                 .insert(Enemy {
                     ..Default::default()
                 });
+            let mut rng = rand::thread_rng();
+            let duration = rng.gen_range(3500..5000);
+            timer.set_duration(Duration::from_millis(duration));
         }
     }
 }
@@ -81,5 +118,76 @@ fn get_random_spawn_position() -> SpawnPosition {
         SpawnPosition::Left
     } else {
         SpawnPosition::Right
-    } 
+    }
+}
+
+pub fn despawn_enemies(
+    mut commands: Commands,
+    enemy_query: Query<(Entity, &Transform), With<Enemy>>,
+    camera_query: Query<&Transform, With<MainCamera>>,
+) {
+    let camera_translation = camera_query.get_single().unwrap().translation;
+    for (enemy_entity, transform) in enemy_query.iter() {
+        if transform.translation.y < camera_translation.y - 600. {
+            commands.entity(enemy_entity).despawn();
+        }
+    }
+}
+
+fn enemies_face_player(
+    mut transform_query: Query<(&mut Transform, &mut Enemy), Without<Player>>,
+    player_query: Query<&Transform, With<Player>>,
+) {
+    let player_translation = player_query.get_single().unwrap().translation;
+
+    for (mut transform, mut enemy) in transform_query.iter_mut() {
+        let mut vector = (player_translation - transform.translation).truncate();
+        vector.y = vector.y + 100.;
+        enemy.vector = vector.normalize();
+        let angle = enemy.vector.y.atan2(enemy.vector.x) - PI / 2.0;
+        transform.rotation = Quat::from_rotation_z(angle);
+    }
+}
+
+fn enemies_shoot_at_player(
+    mut commands: Commands,
+    mut shooters_query: Query<(&mut Enemy, &Transform)>,
+    time: Res<Time>,
+    textures: Res<TextureAssets>,
+) {
+    for (mut enemy, transform) in shooters_query.iter_mut() {
+        enemy.shooting_timer.tick(time.delta());
+        if enemy.shooting_timer.finished() {
+            let enemy_translation = transform.translation.truncate();
+            commands
+                .spawn(SpriteBundle {
+                    texture: textures.bullet.clone(),
+                    transform: Transform::from_translation(Vec3::new(
+                        enemy_translation.x,
+                        enemy_translation.y,
+                        1.5,
+                    )),
+                    ..Default::default()
+                })
+                .insert(Bullet {
+                    ..Default::default()
+                })
+                .insert(Movement {
+                    vector: enemy.vector,
+                    speed: 350.0,
+                    ..Default::default()
+                });
+        }
+    }
+}
+
+fn despawn_blind_bullets(
+    mut commands: Commands,
+    bullet_query: Query<(Entity, &Transform), With<Bullet>>,
+) {
+    for (bullet_entity, transform) in bullet_query.iter() {
+        if transform.translation.x < -100. || transform.translation.x > MAP_WIDTH + 100. {
+            commands.entity(bullet_entity).despawn();
+        }
+    }
 }

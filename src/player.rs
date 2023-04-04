@@ -19,8 +19,8 @@ pub struct Player;
 // TODO move this into own plugin
 #[derive(Component)]
 pub struct Movement {
-    speed: f32,
-    vector: Vec2,
+    pub speed: f32,
+    pub vector: Vec2,
 }
 
 impl Default for Movement {
@@ -73,12 +73,13 @@ fn continuous_movement(
     mut movement_query: Query<(&mut Transform, &Movement), With<Movement>>,
 ) {
     // TODO apply to all the things
-    let (mut transform, movement) = movement_query.get_single_mut().unwrap();
-    transform.translation += Vec3::new(
-        movement.vector.x * movement.speed * time.delta_seconds(),
-        movement.vector.y * movement.speed * time.delta_seconds(),
-        0.,
-    );
+    for (mut transform, movement) in movement_query.iter_mut() {
+        transform.translation += Vec3::new(
+            movement.vector.x * movement.speed * time.delta_seconds(),
+            movement.vector.y * movement.speed * time.delta_seconds(),
+            0.,
+        );
+    }
 }
 
 fn rotate_transform_to_movement(mut transform_query: Query<(&mut Transform, &Movement)>) {
