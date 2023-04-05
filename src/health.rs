@@ -1,6 +1,6 @@
 use bevy::{prelude::*, sprite::collide_aabb::collide};
 
-use crate::{GameState, environment::MAP_WIDTH};
+use crate::{environment::MAP_WIDTH, GameState};
 
 #[derive(Component)]
 pub struct Health {
@@ -29,7 +29,7 @@ pub struct HealthPlugin;
 
 impl Plugin for HealthPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(detect_bullet_collisions.in_schedule(OnEnter(GameState::Playing)))
+        app.add_system(detect_bullet_collisions.in_set(OnUpdate(GameState::Playing)))
             .add_system(despawn_blind_bullets.in_set(OnUpdate(GameState::Playing)));
     }
 }
