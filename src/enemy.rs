@@ -1,14 +1,15 @@
 use std::{f32::consts::PI, time::Duration};
 
-use bevy::{prelude::*, time::Stopwatch};
+use bevy::prelude::*;
 use rand::Rng;
 
 use crate::{
     environment::{LAND_TILE_SIZE, MAP_WIDTH},
     loading::TextureAssets,
     menu::MainCamera,
-    player::{Health, Movement, Player},
+    player::{Movement, Player},
     GameState,
+    health::{Bullet, Health},
 };
 
 pub struct EnemyPlugin;
@@ -41,23 +42,6 @@ impl Default for Enemy {
     }
 }
 
-#[derive(Component)]
-pub struct Bullet {
-    pub shooter: Entity,
-    pub damage: u32,
-    pub size: Vec2,
-}
-
-impl Bullet {
-    fn new(shooter: Entity) -> Self {
-        Bullet {
-            shooter,
-            damage: 1,
-            size: Vec2::new(5., 5.),
-        }
-    }
-}
-
 enum SpawnPosition {
     Left,
     Right,
@@ -69,7 +53,6 @@ impl Plugin for EnemyPlugin {
             .add_system(spawn_enemies.in_set(OnUpdate(GameState::Playing)))
             .add_system(enemies_shoot_at_player.in_set(OnUpdate(GameState::Playing)))
             .add_system(despawn_enemies.in_set(OnUpdate(GameState::Playing)))
-            .add_system(despawn_blind_bullets.in_set(OnUpdate(GameState::Playing)))
             .add_system(enemies_face_player.in_set(OnUpdate(GameState::Playing)));
     }
 }
@@ -101,7 +84,7 @@ fn spawn_enemies(
             commands
                 .spawn(SpriteBundle {
                     texture: textures.enemy_cannon.clone(),
-                    transform: Transform::from_translation(Vec3::new(x, next_spawn_position, 2.)),
+                    transform: Transform::from_translation(Vec3::new(x, next_spawn_position, 4.)),
                     // transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.)),
                     ..Default::default()
                 })
@@ -172,7 +155,7 @@ fn enemies_shoot_at_player(
                     transform: Transform::from_translation(Vec3::new(
                         enemy_translation.x,
                         enemy_translation.y,
-                        1.5,
+                        3.,
                     )),
                     ..Default::default()
                 })
@@ -186,13 +169,3 @@ fn enemies_shoot_at_player(
     }
 }
 
-fn despawn_blind_bullets(
-    mut commands: Commands,
-    bullet_query: Query<(Entity, &Transform), With<Bullet>>,
-) {
-    for (bullet_entity, transform) in bullet_query.iter() {
-        if transform.translation.x < -100. || transform.translation.x > MAP_WIDTH + 100. {
-            commands.entity(bullet_entity).despawn();
-        }
-    }
-}

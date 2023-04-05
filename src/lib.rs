@@ -5,6 +5,8 @@ mod menu;
 mod player;
 mod enemy;
 mod environment;
+mod obstacle;
+mod health;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
@@ -13,11 +15,13 @@ use crate::menu::MenuPlugin;
 use crate::player::PlayerPlugin;
 use crate::enemy::EnemyPlugin;
 use crate::environment::EnvironmentPlugin;
+use crate::obstacle::ObstaclePlugin;
 
 use bevy::app::App;
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
+use health::{Health, HealthPlugin};
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -45,8 +49,10 @@ impl Plugin for GamePlugin {
             .add_plugin(ActionsPlugin)
             .add_plugin(InternalAudioPlugin)
             .add_plugin(PlayerPlugin)
+            .add_plugin(HealthPlugin)
             .add_plugin(EnemyPlugin)
-            .add_plugin(EnvironmentPlugin);
+            .add_plugin(EnvironmentPlugin)
+            .add_plugin(ObstaclePlugin);
 
         #[cfg(debug_assertions)]
         {

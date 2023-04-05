@@ -51,7 +51,6 @@ pub const BORDER_TILE_HEIGHT: f32 = 64.;
 impl Plugin for EnvironmentPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<MapObject>()
-            // .add_system(init_water.in_schedule(OnEnter(GameState::Playing)))
             .add_system(spawn_water.in_set(OnUpdate(GameState::Playing)))
             .add_system(spawn_border.in_set(OnUpdate(GameState::Playing)))
             .add_system(spawn_land.in_set(OnUpdate(GameState::Playing)));
