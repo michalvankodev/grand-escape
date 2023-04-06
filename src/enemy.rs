@@ -5,11 +5,11 @@ use rand::Rng;
 
 use crate::{
     environment::{LAND_TILE_SIZE, MAP_WIDTH},
+    health::{Bullet, Health},
     loading::TextureAssets,
     menu::MainCamera,
     player::{Movement, Player},
     GameState,
-    health::{Bullet, Health},
 };
 
 pub struct EnemyPlugin;
@@ -31,6 +31,7 @@ impl Default for EnemySpawnTimers {
 pub struct Enemy {
     vector: Vec2,
     shooting_timer: Timer,
+    is_alive: bool,
 }
 
 impl Default for Enemy {
@@ -38,6 +39,7 @@ impl Default for Enemy {
         Enemy {
             vector: Vec2::new(0., 0.),
             shooting_timer: Timer::new(Duration::from_secs(2), TimerMode::Repeating),
+            is_alive: true,
         }
     }
 }
@@ -53,6 +55,7 @@ impl Plugin for EnemyPlugin {
             .add_system(spawn_enemies.in_set(OnUpdate(GameState::Playing)))
             .add_system(enemies_shoot_at_player.in_set(OnUpdate(GameState::Playing)))
             .add_system(despawn_enemies.in_set(OnUpdate(GameState::Playing)))
+            .add_system(detect_killed_enemies.in_set(OnUpdate(GameState::Playing)))
             .add_system(enemies_face_player.in_set(OnUpdate(GameState::Playing)));
     }
 }
@@ -92,7 +95,7 @@ fn spawn_enemies(
                     ..Default::default()
                 })
                 .insert(Health {
-                    health_amount: 3,
+                    health_amount: 2,
                     size: Vec2::new(64., 64.),
                 });
             let mut rng = rand::thread_rng();
@@ -131,6 +134,9 @@ fn enemies_face_player(
     let player_translation = player_query.get_single().unwrap().translation;
 
     for (mut transform, mut enemy) in transform_query.iter_mut() {
+        if enemy.is_alive == false {
+            continue;
+        }
         let mut vector = (player_translation - transform.translation).truncate();
         vector.y = vector.y + 100.;
         enemy.vector = vector.normalize();
@@ -147,6 +153,9 @@ fn enemies_shoot_at_player(
 ) {
     for (mut enemy, transform, enemy_entity) in shooters_query.iter_mut() {
         enemy.shooting_timer.tick(time.delta());
+        if enemy.is_alive == false {
+            continue;
+        }
         if enemy.shooting_timer.finished() {
             let enemy_translation = transform.translation.truncate();
             commands
@@ -169,3 +178,17 @@ fn enemies_shoot_at_player(
     }
 }
 
+fn detect_killed_enemies(
+    mut enemies_q: Query<(&mut Enemy, &mut Handle<Image>, &Health)>,
+    textures: Res<TextureAssets>,
+) {
+    for (mut enemy, mut handle, health) in enemies_q.iter_mut() {
+        if enemy.is_alive == false {
+            continue;
+        }
+        if health.health_amount <= 0 {
+            enemy.is_alive = false;
+            *handle = textures.enemy_cannon_crashed.clone();
+        }
+    }
+}

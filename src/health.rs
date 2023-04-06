@@ -42,7 +42,7 @@ fn detect_bullet_collisions(
     for (bullet_entity, bullet_transform, bullet) in bullets_query.iter() {
         for (health_transform, mut health, entity) in health_query.iter_mut() {
             if bullet.shooter == entity {
-                return;
+                continue;
             }
             let collision = collide(
                 bullet_transform.translation,

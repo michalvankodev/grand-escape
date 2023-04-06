@@ -38,10 +38,12 @@ pub struct AudioAssets {
 pub struct TextureAssets {
     #[asset(path = "textures/bevy.png")]
     pub texture_bevy: Handle<Image>,
-    #[asset(path = "textures/boat1-28x64.png")]
+    #[asset(path = "textures/boat2-36x64.png")]
     pub boat: Handle<Image>,
-    #[asset(path = "textures/boat1-crashed-64x64.png")]
+    #[asset(path = "textures/boat2-crashed-64x64.png")]
     pub boat_crashed: Handle<Image>,
+    #[asset(path = "textures/boat-cannon2-14x24.png")]
+    pub boat_cannon: Handle<Image>,
     #[asset(path = "textures/enemy-cannon-64x64.png")]
     pub enemy_cannon: Handle<Image>,
     #[asset(path = "textures/enemy-cannon-crashed-64x64.png")]
@@ -58,7 +60,7 @@ pub struct TextureAssets {
     pub border_tile3: Handle<Image>,
     #[asset(path = "textures/border4-64x64.png")]
     pub border_tile4: Handle<Image>,
-    #[asset(path = "textures/sand2-64x64.png")]
+    #[asset(path = "textures/sand3-64x64.png")]
     pub land_tile: Handle<Image>,
     #[asset(path = "textures/obstacle-rock1-58x59.png")]
     pub obstacle_rock1: Handle<Image>,

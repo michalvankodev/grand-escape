@@ -184,3 +184,4 @@ fn spawn_land(
 
     map_object.land_top = land_y;
 }
+
