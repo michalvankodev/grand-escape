@@ -29,4 +29,15 @@ fn update_timer(mut game_time: ResMut<GameTime>, time: Res<Time>) {
     game_time.elapsed_time.tick(time.delta());
 }
 
+// TODO Pause
+// TODO Restart
+// TODO Count score
+// TODO Count distance
+// TODO Obstacle rotation
+// TODO SOUND
+// TODO Heath regenaration / Picking up upgrades from barrels
+// TODO Weapon upgrades
+// TODO Swap cannon / munition textures
+// TODO Side effects
+// TODO Pirates - Standing on water / more health / more power
 fn restart_score() {}
