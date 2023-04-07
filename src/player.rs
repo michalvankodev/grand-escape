@@ -94,7 +94,7 @@ fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
                 .insert(PlayerCannon {
                     vector: Vec2::new(0., 0.),
                     timer: Timer::new(Duration::from_millis(1000), TimerMode::Once),
-                    turn_rate: FRAC_PI_2,
+                    turn_rate: 3. * FRAC_PI_2,
                 });
         });
 }
@@ -217,7 +217,8 @@ fn move_player_cannon(
 
         let wishful_angle = wishful_vector_normalized
             .y
-            .atan2(wishful_vector_normalized.x) - PI / 2.;
+            .atan2(wishful_vector_normalized.x)
+            - PI / 2.;
         info!("wishful_angle: {}", wishful_angle);
 
         let wishful_rotation = Quat::from_rotation_z(wishful_angle - player_angle.2).normalize();
@@ -233,14 +234,27 @@ fn move_player_cannon(
         let sign = wishful_rotation.dot(current_cannon_rotation.normalize());
 
         // Nice Michal PogChamp
-        let angle_sign = if wishful_angle >= - PI / 2. {
-            if current_angle.2 >= wishful_angle { -1. } else { 1. }
+        let wishful_angle = if wishful_angle < -PI {
+            wishful_angle + 2. * PI
         } else {
-            if current_angle.2 < wishful_angle { 1. } else { -1. }
+            wishful_angle
         };
-        
 
-        let angle_add = cannon.turn_rate * time.delta_seconds() * angle_between * angle_sign;
+        let angle_sign = if (wishful_angle - current_angle.2).abs() < PI {
+            if current_angle.2 >= wishful_angle {
+                -1.
+            } else {
+                1.
+            }
+        } else {
+            if current_angle.2 >= wishful_angle {
+                1.
+            } else {
+                -1.
+            }
+        };
+
+        let angle_add = cannon.turn_rate * time.delta_seconds() * angle_sign;
         let next_rotation = Quat::from_rotation_z(current_angle.2 + angle_add);
 
         cannon.vector = angle_to_vector(next_rotation.to_euler(EulerRot::YZX).2);
