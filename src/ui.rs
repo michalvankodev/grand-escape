@@ -73,7 +73,7 @@ fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>, textures: Res<
                                 .spawn(TextBundle::from_section(
                                     "Score: ",
                                     TextStyle {
-                                        font: font_assets.fira_sans.clone(),
+                                        font: font_assets.fira_mono.clone(),
                                         font_size: 28.0,
                                         color: Color::rgb(0.1, 0.1, 0.1),
                                     },
@@ -83,7 +83,7 @@ fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>, textures: Res<
                                 .spawn(TextBundle::from_section(
                                     "Distance: ",
                                     TextStyle {
-                                        font: font_assets.fira_sans.clone(),
+                                        font: font_assets.fira_mono.clone(),
                                         font_size: 28.0,
                                         color: Color::rgb(0.9, 0.9, 0.9),
                                     },
@@ -139,9 +139,10 @@ fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>, textures: Res<
                         .spawn(NodeBundle {
                             style: Style {
                                 flex_direction: FlexDirection::Column,
+                                justify_content: JustifyContent::End,
                                 padding: UiRect::new(
                                     Val::Px(30.),
-                                    Val::Px(30.),
+                                    Val::Px(10.),
                                     Val::Px(30.),
                                     Val::Px(30.),
                                 ),
@@ -154,8 +155,8 @@ fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>, textures: Res<
                                 .spawn(TextBundle::from_section(
                                     "Time: ",
                                     TextStyle {
-                                        font: font_assets.fira_sans.clone(),
-                                        font_size: 28.0,
+                                        font: font_assets.fira_mono.clone(),
+                                        font_size: 24.0,
                                         color: Color::rgb(0.1, 0.1, 0.1),
                                     },
                                 ))

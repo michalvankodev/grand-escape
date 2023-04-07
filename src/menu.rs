@@ -113,7 +113,7 @@ fn setup_menu(
                     parent.spawn(TextBundle::from_section(
                         "Be prepared for action! The enemies are already eager to take you down.",
                         TextStyle {
-                            font: font_assets.fira_sans.clone(),
+                            font: font_assets.fira_sans_reg.clone(),
                             font_size: 24.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
@@ -124,7 +124,7 @@ fn setup_menu(
                     parent.spawn(TextBundle::from_section(
                         "How to play you ask? The controls are simple:",
                         TextStyle {
-                            font: font_assets.fira_sans.clone(),
+                            font: font_assets.fira_sans_reg.clone(),
                             font_size: 20.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
@@ -136,7 +136,7 @@ fn setup_menu(
                     parent.spawn(TextBundle::from_section(
                         "Use the arrow keys or A and D keys to steer yer boat. Change direction to navigate and avoid obstacles on the high seas.",
                         TextStyle {
-                            font: font_assets.fira_sans.clone(),
+                            font: font_assets.fira_sans_reg.clone(),
                             font_size: 20.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
@@ -148,7 +148,7 @@ fn setup_menu(
                     parent.spawn(TextBundle::from_section(
                         "Set yer sights on enemies with yer trusty mouse. Move it to aim, and fire with the mouse button to blast 'em!",
                         TextStyle {
-                            font: font_assets.fira_sans.clone(),
+                            font: font_assets.fira_sans_reg.clone(),
                             font_size: 20.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
@@ -160,7 +160,7 @@ fn setup_menu(
                     parent.spawn(TextBundle::from_section(
                         "Hit yer Escape button if when ye be needin' a break to pause the game.",
                         TextStyle {
-                            font: font_assets.fira_sans.clone(),
+                            font: font_assets.fira_sans_reg.clone(),
                             font_size: 20.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
