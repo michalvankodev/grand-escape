@@ -16,8 +16,9 @@ fn main() {
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "The grand escape".to_string(), // ToDo
-                resolution: (800., 600.).into(),
+                resolution: (760., 800.).into(),
                 canvas: Some("#bevy".to_owned()),
+                resizable: false,
                 ..default()
             }),
             ..default()

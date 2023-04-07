@@ -149,39 +149,23 @@ fn spawn_land(
     if map_object.land_top > y_where_land_should_be_generated {
         return;
     }
-    // Left side
     let land_y = map_object.land_top + LAND_TILE_SIZE;
-    commands
-        .spawn(SpriteBundle {
-            texture: textures.land_tile.clone(),
-            transform: Transform::from_translation(Vec3::new(
-                0. - LAND_TILE_SIZE / 2.,
-                land_y,
-                1.1,
-            )),
-            ..Default::default()
-        })
-        .insert(LandTile)
-        .insert(Collidable {
-            size: Vec2::new(LAND_TILE_SIZE, LAND_TILE_SIZE),
-        });
-
-    // Right side
-    commands
-        .spawn(SpriteBundle {
-            texture: textures.land_tile.clone(),
-            transform: Transform::from_translation(Vec3::new(
-                MAP_WIDTH + LAND_TILE_SIZE / 2.,
-                land_y,
-                1.1,
-            )),
-            ..Default::default()
-        })
-        .insert(LandTile)
-        .insert(Collidable {
-            size: Vec2::new(LAND_TILE_SIZE, LAND_TILE_SIZE),
-        });
-
+    for tile_mid in [
+        0. - 3. * LAND_TILE_SIZE / 2.,
+        0. - LAND_TILE_SIZE / 2.,
+        MAP_WIDTH + LAND_TILE_SIZE / 2.,
+        MAP_WIDTH + 3. * LAND_TILE_SIZE / 2.,
+    ] {
+        commands
+            .spawn(SpriteBundle {
+                texture: textures.land_tile.clone(),
+                transform: Transform::from_translation(Vec3::new(tile_mid, land_y, 1.1)),
+                ..Default::default()
+            })
+            .insert(LandTile)
+            .insert(Collidable {
+                size: Vec2::new(LAND_TILE_SIZE, LAND_TILE_SIZE),
+            });
+    }
     map_object.land_top = land_y;
 }
-

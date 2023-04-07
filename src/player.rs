@@ -148,7 +148,7 @@ fn camera_follow_player(
     let mut camera_transform = camera_query.get_single_mut().unwrap();
     *camera_transform = Transform::from_translation(Vec3::new(
         MAP_WIDTH / 2.,
-        player_translation.y,
+        player_translation.y + 180.,
         camera_transform.translation.z,
     ));
 }

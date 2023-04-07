@@ -103,7 +103,7 @@ fn setup_menu(
                         "Ahoy matey!!, Ready for an adventure?",
                         TextStyle {
                             font: font_assets.fira_sans.clone(),
-                            font_size: 40.0,
+                            font_size: 50.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
                     ).with_text_alignment(TextAlignment::Center).with_style(Style {
@@ -114,7 +114,7 @@ fn setup_menu(
                         "Be prepared for action! The enemies are already eager to take you down.",
                         TextStyle {
                             font: font_assets.fira_sans.clone(),
-                            font_size: 28.0,
+                            font_size: 24.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
                     ).with_text_alignment(TextAlignment::Center).with_style(Style {
@@ -125,7 +125,7 @@ fn setup_menu(
                         "How to play you ask? The controls are simple:",
                         TextStyle {
                             font: font_assets.fira_sans.clone(),
-                            font_size: 28.0,
+                            font_size: 20.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
                     ).with_text_alignment(TextAlignment::Center).with_style(Style {
@@ -137,7 +137,7 @@ fn setup_menu(
                         "Use the arrow keys or A and D keys to steer yer boat. Change direction to navigate and avoid obstacles on the high seas.",
                         TextStyle {
                             font: font_assets.fira_sans.clone(),
-                            font_size: 28.0,
+                            font_size: 20.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
                     ).with_text_alignment(TextAlignment::Center).with_style(Style {
@@ -149,7 +149,7 @@ fn setup_menu(
                         "Set yer sights on enemies with yer trusty mouse. Move it to aim, and fire with the mouse button to blast 'em!",
                         TextStyle {
                             font: font_assets.fira_sans.clone(),
-                            font_size: 28.0,
+                            font_size: 20.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
                     ).with_text_alignment(TextAlignment::Center).with_style(Style {
@@ -161,7 +161,7 @@ fn setup_menu(
                         "Hit yer Escape button if when ye be needin' a break to pause the game.",
                         TextStyle {
                             font: font_assets.fira_sans.clone(),
-                            font_size: 28.0,
+                            font_size: 20.0,
                             color: Color::rgb(0.9, 0.9, 0.9),
                         },
                     ).with_text_alignment(TextAlignment::Center).with_style(Style {

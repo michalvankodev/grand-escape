@@ -80,9 +80,9 @@ fn spawn_enemies(
         if timer.finished() {
             let position = get_random_spawn_position();
             let x = if let SpawnPosition::Right = position {
-                MAP_WIDTH + LAND_TILE_SIZE / 2.
+                MAP_WIDTH + LAND_TILE_SIZE 
             } else {
-                0.0 - LAND_TILE_SIZE / 2.
+                0.0 - LAND_TILE_SIZE
             };
             commands
                 .spawn(SpriteBundle {
