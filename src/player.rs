@@ -211,7 +211,7 @@ fn move_player_cannon(
 
         let current_cannon_rotation = Quat::from_rotation_z(current_angle.2 - player_angle.2);
 
-        // Vector where we are looking at
+        // Vector where we are pointing at
         let wishful_vector = position - global_cannon_transform.translation().truncate();
         let wishful_vector_normalized = wishful_vector.normalize();
 
@@ -219,26 +219,22 @@ fn move_player_cannon(
             .y
             .atan2(wishful_vector_normalized.x)
             - PI / 2.;
-        info!("wishful_angle: {}", wishful_angle);
-
-        let wishful_rotation = Quat::from_rotation_z(wishful_angle - player_angle.2).normalize();
-        // We should somewhere do a modulo
-        // let current_cannon_rotation = Quat::from_rotation_z(current_angle);
-
-        let angle_between = current_cannon_rotation
-            .normalize()
-            .angle_between(wishful_rotation);
-
-        info!("angle_between: {}", angle_between);
-        // angle_between cannot be more than PI
-        let sign = wishful_rotation.dot(current_cannon_rotation.normalize());
-
         // Nice Michal PogChamp
         let wishful_angle = if wishful_angle < -PI {
             wishful_angle + 2. * PI
         } else {
             wishful_angle
         };
+        info!("wishful_angle: {}", wishful_angle);
+
+        let wishful_rotation = Quat::from_rotation_z(wishful_angle - player_angle.2).normalize();
+
+        let angle_between = current_cannon_rotation
+            .normalize()
+            .angle_between(wishful_rotation);
+
+        info!("angle_between: {}", angle_between);
+
 
         let angle_sign = if (wishful_angle - current_angle.2).abs() < PI {
             if current_angle.2 >= wishful_angle {
@@ -257,13 +253,9 @@ fn move_player_cannon(
         let angle_add = cannon.turn_rate * time.delta_seconds() * angle_sign;
         let next_rotation = Quat::from_rotation_z(current_angle.2 + angle_add);
 
-        cannon.vector = angle_to_vector(next_rotation.to_euler(EulerRot::YZX).2);
-        // cannon.vector = next_rotation.xyz().truncate();
+        cannon.vector = angle_to_vector(current_angle.2 + angle_add);
         cannon_transform.rotation = next_rotation;
-        info!(
-            "position: {}, angle: {}, angle_between: {}, sign:{}, vector: {}",
-            position, wishful_angle, angle_between, sign, cannon.vector
-        );
+        info!("cannon.vector {}, rotation: {}", cannon.vector, next_rotation.to_axis_angle().0);
     }
 }
 
@@ -304,11 +296,8 @@ fn player_shoot(
 }
 
 fn angle_to_vector(angle: f32) -> Vec2 {
+    let angle = angle + PI / 2.;
     let x = angle.cos();
     let y = angle.sin();
     Vec2::new(x, y)
-}
-
-fn modulate(angle: f32) -> f32 {
-    (angle) % (2. * PI)
 }
