@@ -199,17 +199,7 @@ fn move_player_cannon(
         info!("World coords: {}/{}", position.x, position.y);
         // Apply player rotation to the current cannon rotation
         let current_angle = cannon_transform.rotation.to_euler(EulerRot::YXZ);
-        info!("current_angle: {}", current_angle.2);
-
         let player_angle = player_rotation.to_euler(EulerRot::YXZ);
-
-        info!("player_angle: {}", player_angle.2);
-
-        let current_cannon_angle = current_angle.2 - player_angle.2;
-
-        info!("current_cannon_angle: {}", current_cannon_angle);
-
-        let current_cannon_rotation = Quat::from_rotation_z(current_angle.2 - player_angle.2);
 
         // Vector where we are pointing at
         let wishful_vector = position - global_cannon_transform.translation().truncate();
@@ -225,25 +215,19 @@ fn move_player_cannon(
         } else {
             wishful_angle
         };
-        info!("wishful_angle: {}", wishful_angle);
 
-        let wishful_rotation = Quat::from_rotation_z(wishful_angle - player_angle.2).normalize();
+        let wishful_rotation = Quat::from_rotation_z(wishful_angle - player_angle.2);
 
-        let angle_between = current_cannon_rotation
-            .normalize()
-            .angle_between(wishful_rotation);
+        let wishful_rotation_angle = wishful_rotation.to_euler(EulerRot::YXZ);
 
-        info!("angle_between: {}", angle_between);
-
-
-        let angle_sign = if (wishful_angle - current_angle.2).abs() < PI {
-            if current_angle.2 >= wishful_angle {
+        let angle_sign = if (wishful_rotation_angle.2 - current_angle.2).abs() < PI {
+            if current_angle.2 >= wishful_rotation_angle.2 {
                 -1.
             } else {
                 1.
             }
         } else {
-            if current_angle.2 >= wishful_angle {
+            if current_angle.2 >= wishful_rotation_angle.2 {
                 1.
             } else {
                 -1.
@@ -253,9 +237,8 @@ fn move_player_cannon(
         let angle_add = cannon.turn_rate * time.delta_seconds() * angle_sign;
         let next_rotation = Quat::from_rotation_z(current_angle.2 + angle_add);
 
-        cannon.vector = angle_to_vector(current_angle.2 + angle_add);
+        cannon.vector = angle_to_vector(current_angle.2 + player_angle.2 + angle_add);
         cannon_transform.rotation = next_rotation;
-        info!("cannon.vector {}, rotation: {}", cannon.vector, next_rotation.to_axis_angle().0);
     }
 }
 
