@@ -196,7 +196,6 @@ fn move_player_cannon(
         .and_then(|pos| camera.viewport_to_world(camera_transform, pos))
         .map(|ray| ray.origin.truncate())
     {
-        info!("World coords: {}/{}", position.x, position.y);
         // Apply player rotation to the current cannon rotation
         let current_angle = cannon_transform.rotation.to_euler(EulerRot::YXZ);
         let player_angle = player_rotation.to_euler(EulerRot::YXZ);
@@ -217,7 +216,6 @@ fn move_player_cannon(
         };
 
         let wishful_rotation = Quat::from_rotation_z(wishful_angle - player_angle.2);
-
         let wishful_rotation_angle = wishful_rotation.to_euler(EulerRot::YXZ);
 
         let angle_sign = if (wishful_rotation_angle.2 - current_angle.2).abs() < PI {

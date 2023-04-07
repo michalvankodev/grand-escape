@@ -68,4 +68,10 @@ pub struct TextureAssets {
     pub obstacle_rock2: Handle<Image>,
     #[asset(path = "textures/obstacle-rock3-60x41.png")]
     pub obstacle_rock3: Handle<Image>,
+    #[asset(path = "textures/logo.png")]
+    pub logo: Handle<Image>,
+    #[asset(path = "textures/play-button.png")]
+    pub btn_play: Handle<Image>,
+    #[asset(path = "textures/exit-button.png")]
+    pub btn_exit: Handle<Image>,
 }
