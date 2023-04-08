@@ -9,6 +9,7 @@ mod obstacle;
 mod health;
 mod ui;
 mod score;
+mod pause;
 
 use crate::actions::ActionsPlugin;
 use crate::audio::InternalAudioPlugin;
@@ -24,6 +25,7 @@ use bevy::app::App;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use health::HealthPlugin;
+use pause::PausePlugin;
 use score::ScorePlugin;
 use ui::UiPlugin;
 
@@ -61,7 +63,10 @@ impl Plugin for GamePlugin {
             .add_plugin(ObstaclePlugin)
             .add_plugin(UiPlugin)
             .add_plugin(ScorePlugin)
-            .add_system(play_after_init.in_schedule(OnEnter(GameState::Init)));
+            .add_plugin(PausePlugin)
+            .add_system(play_after_init.in_schedule(OnEnter(GameState::Init)))
+            .add_system(change_cursor.in_schedule(OnEnter(GameState::Playing)))
+            .add_system(change_cursor_back.in_schedule(OnExit(GameState::Playing)));
 
         #[cfg(debug_assertions)]
         {
@@ -73,4 +78,13 @@ impl Plugin for GamePlugin {
 
 fn play_after_init(mut state: ResMut<NextState<GameState>>) {
     state.set(GameState::Playing);
+}
+ 
+fn change_cursor(mut windows: Query<&mut Window>) {
+    let mut window = windows.single_mut();
+    window.cursor.icon = CursorIcon::Crosshair;
+}
+fn change_cursor_back(mut windows: Query<&mut Window>) {
+    let mut window = windows.single_mut();
+    window.cursor.icon = CursorIcon::Default;
 }

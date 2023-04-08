@@ -182,9 +182,9 @@ fn display_boat_damage(
     let health_percentage = health.health_amount as f32 / health.max_health as f32 * 100.;
     let next_texture = if health_percentage <= 0. {
         &textures.boat_crashed
-    } else if health_percentage <= 25. {
+    } else if health_percentage <= 33. {
         &textures.boat_dmg2
-    } else if health_percentage <= 60. {
+    } else if health_percentage <= 66. {
         &textures.boat_dmg1
     } else {
         &textures.boat

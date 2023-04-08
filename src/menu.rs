@@ -11,14 +11,15 @@ impl Plugin for MenuPlugin {
         app.init_resource::<ButtonColors>()
             .add_system(setup_menu.in_schedule(OnEnter(GameState::Menu)))
             .add_system(click_play_button.in_set(OnUpdate(GameState::Menu)))
+            .add_system(click_play_button.in_set(OnUpdate(GameState::Paused)))
             .add_system(cleanup_menu.in_schedule(OnExit(GameState::Menu)));
     }
 }
 
 #[derive(Resource)]
-struct ButtonColors {
-    normal: Color,
-    hovered: Color,
+pub struct ButtonColors {
+   pub normal: Color,
+   pub hovered: Color,
 }
 
 impl Default for ButtonColors {
@@ -40,6 +41,7 @@ pub struct MenuBundle;
 pub enum ButtonAction {
     PlayButton,
     ExitButton,
+    ContinueButton,
 }
 
 fn setup_menu(
@@ -249,6 +251,9 @@ fn click_play_button(
                 },
                 ButtonAction::ExitButton => {
                     state.set(GameState::End);
+                }
+                ButtonAction::ContinueButton => {
+                    state.set(GameState::Playing);
                 }
             },
             Interaction::Hovered => {
