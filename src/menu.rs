@@ -245,7 +245,7 @@ fn click_play_button(
         match *interaction {
             Interaction::Clicked => match action {
                 ButtonAction::PlayButton => {
-                    state.set(GameState::Playing);
+                    state.set(GameState::Init);
                 },
                 ButtonAction::ExitButton => {
                     state.set(GameState::End);

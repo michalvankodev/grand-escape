@@ -35,6 +35,7 @@ enum GameState {
     // During the loading State the LoadingPlugin will load our assets
     #[default]
     Loading,
+    Init,
     // During this State the actual game logic is executed
     Playing,
     Paused,
@@ -59,7 +60,8 @@ impl Plugin for GamePlugin {
             .add_plugin(EnvironmentPlugin)
             .add_plugin(ObstaclePlugin)
             .add_plugin(UiPlugin)
-            .add_plugin(ScorePlugin);
+            .add_plugin(ScorePlugin)
+            .add_system(play_after_init.in_schedule(OnEnter(GameState::Init)));
 
         #[cfg(debug_assertions)]
         {
@@ -67,4 +69,8 @@ impl Plugin for GamePlugin {
                 .add_plugin(LogDiagnosticsPlugin::default());
         }
     }
+}
+
+fn play_after_init(mut state: ResMut<NextState<GameState>>) {
+    state.set(GameState::Playing);
 }

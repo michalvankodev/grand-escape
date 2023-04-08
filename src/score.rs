@@ -1,6 +1,6 @@
 use bevy::{prelude::*, time::Stopwatch};
 
-use crate::{player::Player, GameState};
+use crate::{player::Player, GameState, environment::MAP_HEIGHT};
 
 pub struct ScorePlugin;
 
@@ -35,14 +35,13 @@ fn update_timer(mut game_score: ResMut<GameScore>, time: Res<Time>) {
 }
 
 fn update_distance(mut game_score: ResMut<GameScore>, player_q: Query<&Transform, With<Player>>) {
-    let distance_in_world = player_q.get_single().unwrap().translation.y;
+    let start_y = MAP_HEIGHT / 2.;
+    let distance_in_world = player_q.get_single().unwrap().translation.y - start_y ;
     game_score.distance_traveled = distance_in_world / 16.;
 }
 
 // TODO Pause
 // TODO Restart
-// TODO Count score
-// TODO Count distance
 // TODO Obstacle rotation
 // TODO SOUND
 // TODO Heath regenaration / Picking up upgrades from barrels

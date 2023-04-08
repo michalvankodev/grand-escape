@@ -9,7 +9,7 @@ use crate::{
     loading::TextureAssets,
     menu::MainCamera,
     player::{Movement, Player},
-    GameState,
+    GameState, score::GameScore,
 };
 
 pub struct EnemyPlugin;
@@ -182,6 +182,7 @@ fn enemies_shoot_at_player(
 fn detect_killed_enemies(
     mut enemies_q: Query<(&mut Enemy, &mut Handle<Image>, &Health)>,
     textures: Res<TextureAssets>,
+    mut game_score: ResMut<GameScore>,
 ) {
     for (mut enemy, mut handle, health) in enemies_q.iter_mut() {
         if enemy.is_alive == false {
@@ -190,6 +191,7 @@ fn detect_killed_enemies(
         if health.health_amount <= 0 {
             enemy.is_alive = false;
             *handle = textures.enemy_cannon_crashed.clone();
+            game_score.score += 10;
         }
     }
 }

@@ -12,6 +12,8 @@ pub struct ActionsPlugin;
 impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Actions>()
+            .add_system(pause_game.in_set(OnUpdate(GameState::Playing)))
+            .add_system(unpause_game.in_set(OnUpdate(GameState::Paused)))
             .add_system(set_movement_actions.in_set(OnUpdate(GameState::Playing)));
     }
 }
@@ -24,15 +26,26 @@ pub struct Actions {
 pub fn set_movement_actions(mut actions: ResMut<Actions>, keyboard_input: Res<Input<KeyCode>>) {
     let player_movement = Vec2::new(
         get_movement(GameControl::Right, &keyboard_input)
-            - get_movement(GameControl::Left, &keyboard_input), 
-        0.0
-        // get_movement(GameControl::Up, &keyboard_input)
-        //     - get_movement(GameControl::Down, &keyboard_input),
+            - get_movement(GameControl::Left, &keyboard_input),
+        0.0, // get_movement(GameControl::Up, &keyboard_input)
+             //     - get_movement(GameControl::Down, &keyboard_input),
     );
 
     if player_movement != Vec2::ZERO {
         actions.player_movement = Some(player_movement.normalize());
     } else {
         actions.player_movement = None;
+    }
+}
+
+fn pause_game(mut state: ResMut<NextState<GameState>>, keyboard_input: Res<Input<KeyCode>>) {
+    if keyboard_input.just_pressed(KeyCode::Escape) {
+        state.set(GameState::Paused);
+    }
+}
+
+fn unpause_game(mut state: ResMut<NextState<GameState>>, keyboard_input: Res<Input<KeyCode>>) {
+    if keyboard_input.just_pressed(KeyCode::Escape) {
+        state.set(GameState::Playing);
     }
 }

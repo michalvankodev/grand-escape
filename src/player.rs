@@ -47,7 +47,7 @@ impl Default for Movement {
 /// Player logic is only active during the State `GameState::Playing`
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(spawn_player.in_schedule(OnEnter(GameState::Playing)))
+        app.add_system(spawn_player.in_schedule(OnEnter(GameState::Init)))
             .add_system(move_player.in_set(OnUpdate(GameState::Playing)))
             .add_system(detect_collisions.in_set(OnUpdate(GameState::Playing)))
             .add_system(
