@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use rand::Rng;
-use std::time::Duration;
+use std::{time::Duration, f32::consts::PI};
 
 use crate::{GameState, loading::TextureAssets, menu::MainCamera, environment::{Collidable, MAP_WIDTH}, health::Health};
 
@@ -56,6 +56,7 @@ fn spawn_obstacles(
             ];
             let mut rng = rand::thread_rng();
             let which_one_index = rng.gen_range(0..2);
+            let random_angle = rng.gen_range(0.0..2. * PI);
             let obstacle_texture = &available_obstacles[which_one_index];
             let size = OBSTACLE_SIZES[which_one_index];
             let position = get_random_obstacle_spawn_position();
@@ -66,7 +67,7 @@ fn spawn_obstacles(
                         position,
                         next_spawn_position,
                         2.,
-                    )),
+                    )).with_rotation(Quat::from_rotation_z(random_angle)),
                     // transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.)),
                     ..Default::default()
                 })

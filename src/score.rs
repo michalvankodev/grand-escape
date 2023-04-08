@@ -40,9 +40,8 @@ fn update_distance(mut game_score: ResMut<GameScore>, player_q: Query<&Transform
     game_score.distance_traveled = distance_in_world / 16.;
 }
 
-// TODO Pause
-// TODO Restart
-// TODO Obstacle rotation
+// TODO Pause , pause menu / spawn despawn
+// TODO Restart, spawn / despawn correctly uis and enemies
 // TODO SOUND
 // TODO Heath regenaration / Picking up upgrades from barrels
 // TODO Weapon upgrades
