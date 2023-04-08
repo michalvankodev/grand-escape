@@ -37,7 +37,7 @@ pub struct Movement {
 impl Default for Movement {
     fn default() -> Self {
         Movement {
-            speed: 150.0,
+            speed: 120.0,
             vector: Vec2::new(0., 1.),
         }
     }

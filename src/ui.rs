@@ -2,7 +2,8 @@ use bevy::prelude::*;
 
 use crate::{
     loading::{FontAssets, TextureAssets},
-    GameState, score::GameTime,
+    score::GameScore,
+    GameState,
 };
 
 pub struct UiPlugin;
@@ -10,7 +11,7 @@ pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(setup_ui.in_schedule(OnEnter(GameState::Playing)))
-        .add_system(update_time.in_set(OnUpdate(GameState::Playing)));
+            .add_system(update_score.in_set(OnUpdate(GameState::Playing)));
     }
 }
 
@@ -166,12 +167,25 @@ fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>, textures: Res<
         });
 }
 
-fn update_time(
-    game_time: Res<GameTime>,
-    mut text_q: Query<&mut Text, With<TimeText>>,
+fn update_score(
+    game_score: Res<GameScore>,
+    mut text_q: ParamSet<(
+        Query<&mut Text, With<TimeText>>,
+        Query<&mut Text, With<ScoreText>>,
+        Query<&mut Text, With<DistanceText>>,
+    )>,
 ) {
-    let mut text = text_q.get_single_mut().unwrap();
-    let minutes = game_time.elapsed_time.elapsed().as_secs() / 60;
-    let seconds = game_time.elapsed_time.elapsed().as_secs() % 60;
-    text.sections[0].value = format!("Time: {}:{:02}", minutes, seconds);
+    let mut tt = text_q.p0();
+    let time_text = &mut tt.get_single_mut().unwrap();
+    let minutes = game_score.elapsed_time.elapsed().as_secs() / 60;
+    let seconds = game_score.elapsed_time.elapsed().as_secs() % 60;
+    time_text.sections[0].value = format!("Time: {}:{:02}", minutes, seconds);
+
+    let mut st = text_q.p1();
+    let score_text = &mut st.get_single_mut().unwrap();
+    score_text.sections[0].value = format!("Score: {}", game_score.score);
+
+    let mut dt = text_q.p2();
+    let distance_text = &mut dt.get_single_mut().unwrap();
+    distance_text.sections[0].value = format!("Distance: {:.0}m", game_score.distance_traveled);
 }
