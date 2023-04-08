@@ -4,6 +4,7 @@ use crate::{environment::MAP_WIDTH, GameState};
 
 #[derive(Component)]
 pub struct Health {
+    pub max_health: i32,
     pub health_amount: i32,
     pub size: Vec2,
 }

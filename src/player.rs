@@ -77,6 +77,7 @@ fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
         })
         .insert(Player)
         .insert(Health {
+            max_health: 10,
             health_amount: 10,
             size: Vec2::new(28., 64.),
         })

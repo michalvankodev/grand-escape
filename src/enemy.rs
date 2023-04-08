@@ -95,6 +95,7 @@ fn spawn_enemies(
                     ..Default::default()
                 })
                 .insert(Health {
+                    max_health: 2,
                     health_amount: 2,
                     size: Vec2::new(64., 64.),
                 });

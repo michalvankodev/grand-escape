@@ -71,7 +71,7 @@ fn spawn_obstacles(
                     ..Default::default()
                 })
                 .insert(ObstacleTile)
-                .insert(Health { health_amount: 100, size })
+                .insert(Health { max_health: 100, health_amount: 100, size })
                 .insert(Collidable {
                     size
                 });

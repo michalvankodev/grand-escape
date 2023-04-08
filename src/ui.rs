@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     loading::{FontAssets, TextureAssets},
     score::GameScore,
-    GameState,
+    GameState, health::Health, player::Player,
 };
 
 pub struct UiPlugin;
@@ -11,7 +11,8 @@ pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(setup_ui.in_schedule(OnEnter(GameState::Playing)))
-            .add_system(update_score.in_set(OnUpdate(GameState::Playing)));
+            .add_system(update_score.in_set(OnUpdate(GameState::Playing)))
+            .add_system(update_health_bar.in_set(OnUpdate(GameState::Playing)));
     }
 }
 
@@ -85,8 +86,8 @@ fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>, textures: Res<
                                     "Distance: ",
                                     TextStyle {
                                         font: font_assets.fira_mono.clone(),
-                                        font_size: 28.0,
-                                        color: Color::rgb(0.9, 0.9, 0.9),
+                                        font_size: 24.0,
+                                        color: Color::rgb(0.1, 0.1, 0.1),
                                     },
                                 ))
                                 .insert(DistanceText);
@@ -188,4 +189,14 @@ fn update_score(
     let mut dt = text_q.p2();
     let distance_text = &mut dt.get_single_mut().unwrap();
     distance_text.sections[0].value = format!("Distance: {:.0}m", game_score.distance_traveled);
+}
+
+fn update_health_bar (
+    health_q: Query<&Health, With<Player>>,
+    mut health_bar_q: Query<&mut Style, With<HealthBar>>,
+) {
+    let health = health_q.get_single().unwrap();
+    let mut health_bar = health_bar_q.get_single_mut().unwrap();
+
+    health_bar.size = Size::width(Val::Percent(100. * (health.health_amount as f32 / health.max_health as f32)));
 }
