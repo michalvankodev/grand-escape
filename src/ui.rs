@@ -61,7 +61,7 @@ fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>, textures: Res<
                             style: Style {
                                 flex_direction: FlexDirection::Column,
                                 padding: UiRect::new(
-                                    Val::Px(30.),
+                                    Val::Px(10.),
                                     Val::Px(30.),
                                     Val::Px(30.),
                                     Val::Px(30.),
@@ -73,20 +73,38 @@ fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>, textures: Res<
                         .with_children(|parent| {
                             parent
                                 .spawn(TextBundle::from_section(
-                                    "Score: ",
+                                    "Score",
                                     TextStyle {
                                         font: font_assets.fira_mono.clone(),
-                                        font_size: 28.0,
+                                        font_size: 22.0,
+                                        color: Color::rgb(0.1, 0.1, 0.1),
+                                    },
+                                ));
+                            parent
+                                .spawn(TextBundle::from_section(
+                                    "",
+                                    TextStyle {
+                                        font: font_assets.fira_mono.clone(),
+                                        font_size: 24.0,
                                         color: Color::rgb(0.1, 0.1, 0.1),
                                     },
                                 ))
                                 .insert(ScoreText);
                             parent
                                 .spawn(TextBundle::from_section(
-                                    "Distance: ",
+                                    "Distance",
                                     TextStyle {
                                         font: font_assets.fira_mono.clone(),
-                                        font_size: 24.0,
+                                        font_size: 18.0,
+                                        color: Color::rgb(0.1, 0.1, 0.1),
+                                    },
+                                ));
+                            parent
+                                .spawn(TextBundle::from_section(
+                                    "",
+                                    TextStyle {
+                                        font: font_assets.fira_mono.clone(),
+                                        font_size: 20.0,
                                         color: Color::rgb(0.1, 0.1, 0.1),
                                     },
                                 ))
@@ -155,10 +173,19 @@ fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>, textures: Res<
                         .with_children(|parent| {
                             parent
                                 .spawn(TextBundle::from_section(
-                                    "Time: ",
+                                    "Time",
                                     TextStyle {
                                         font: font_assets.fira_mono.clone(),
-                                        font_size: 24.0,
+                                        font_size: 18.0,
+                                        color: Color::rgb(0.1, 0.1, 0.1),
+                                    },
+                                ));
+                            parent
+                                .spawn(TextBundle::from_section(
+                                    "",
+                                    TextStyle {
+                                        font: font_assets.fira_mono.clone(),
+                                        font_size: 20.0,
                                         color: Color::rgb(0.1, 0.1, 0.1),
                                     },
                                 ))
@@ -180,15 +207,15 @@ fn update_score(
     let time_text = &mut tt.get_single_mut().unwrap();
     let minutes = game_score.elapsed_time.elapsed().as_secs() / 60;
     let seconds = game_score.elapsed_time.elapsed().as_secs() % 60;
-    time_text.sections[0].value = format!("Time: {}:{:02}", minutes, seconds);
+    time_text.sections[0].value = format!("{}:{:02}", minutes, seconds);
 
     let mut st = text_q.p1();
     let score_text = &mut st.get_single_mut().unwrap();
-    score_text.sections[0].value = format!("Score: {}", game_score.score + game_score.distance_traveled as i32 / 50);
+    score_text.sections[0].value = format!("{}", game_score.score + game_score.distance_traveled as i32 / 50);
 
     let mut dt = text_q.p2();
     let distance_text = &mut dt.get_single_mut().unwrap();
-    distance_text.sections[0].value = format!("Distance: {:.0}m", game_score.distance_traveled);
+    distance_text.sections[0].value = format!("{:.0}m", game_score.distance_traveled);
 }
 
 fn update_health_bar (

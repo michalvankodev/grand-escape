@@ -1,5 +1,4 @@
 use std::f32::consts::{FRAC_PI_2, PI};
-use std::thread::current;
 use std::time::Duration;
 
 use crate::actions::Actions;
@@ -58,6 +57,8 @@ impl Plugin for PlayerPlugin {
             .add_system(continuous_movement.in_set(OnUpdate(GameState::Playing)))
             .add_system(move_player_cannon.in_set(OnUpdate(GameState::Playing)))
             .add_system(player_shoot.in_set(OnUpdate(GameState::Playing)))
+            .add_system(detect_player_dead.in_set(OnUpdate(GameState::Playing)))
+            .add_system(display_boat_damage.in_set(OnUpdate(GameState::Playing)))
             .add_system(rotate_transform_to_movement.in_set(OnUpdate(GameState::Playing)));
     }
 }
@@ -155,12 +156,10 @@ fn camera_follow_player(
 }
 
 fn detect_collisions(
+    mut player_q: Query<(&Transform, &mut Health), With<Player>>,
     collidables_query: Query<(&Transform, &Collidable)>,
-    mut player_query: Query<(&Transform, &mut Handle<Image>), With<Player>>,
-    textures: Res<TextureAssets>,
-    mut state: ResMut<NextState<GameState>>,
 ) {
-    let (player_transform, mut texture_handle) = player_query.get_single_mut().unwrap();
+    let (player_transform, mut player_health) = player_q.get_single_mut().unwrap();
     let player_size = Vec2::new(PLAYER_WIDTH, PLAYER_HEIGHT);
     for (collidable_transform, collidable) in collidables_query.iter() {
         let collision = collide(
@@ -170,9 +169,39 @@ fn detect_collisions(
             collidable.size,
         );
         if Option::is_some(&collision) {
-            *texture_handle = textures.boat_crashed.clone();
-            state.set(GameState::End);
+            player_health.health_amount -= collidable.damage;
         }
+    }
+}
+
+fn display_boat_damage(
+    mut player_q: Query<(&mut Handle<Image>, &Health), With<Player>>,
+    textures: Res<TextureAssets>,
+) {
+    let (mut handle, health) = player_q.get_single_mut().unwrap();
+    let health_percentage = health.health_amount as f32 / health.max_health as f32 * 100.;
+    let next_texture = if health_percentage <= 0. {
+        &textures.boat_crashed
+    } else if health_percentage <= 25. {
+        &textures.boat_dmg2
+    } else if health_percentage <= 60. {
+        &textures.boat_dmg1
+    } else {
+        &textures.boat
+    };
+
+    if *handle != *next_texture {
+        *handle = next_texture.clone();
+    }
+}
+
+fn detect_player_dead(
+    player_health_q: Query<&Health, With<Player>>,
+    mut state: ResMut<NextState<GameState>>,
+) {
+    let player_health = player_health_q.get_single().unwrap();
+    if player_health.health_amount <= 0 {
+        state.set(GameState::End);
     }
 }
 

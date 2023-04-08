@@ -74,7 +74,8 @@ fn spawn_obstacles(
                 .insert(ObstacleTile)
                 .insert(Health { max_health: 100, health_amount: 100, size })
                 .insert(Collidable {
-                    size
+                    size,
+                    damage: 7
                 });
             let mut rng = rand::thread_rng();
             let duration = rng.gen_range(2500..5000); // TODO change with increasing difficulty
