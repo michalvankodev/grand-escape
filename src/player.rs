@@ -3,13 +3,14 @@ use std::time::Duration;
 
 use crate::actions::Actions;
 use crate::environment::{Collidable, MAP_HEIGHT, MAP_WIDTH};
-use crate::health::{Bullet, Health};
-use crate::loading::TextureAssets;
+use crate::health::{Bullet, Health, Mass};
+use crate::loading::{TextureAssets, AudioAssets};
 use crate::menu::MainCamera;
 use crate::GameState;
 use bevy::prelude::*;
 use bevy::sprite::collide_aabb::collide;
 use bevy::window::PrimaryWindow;
+use bevy_kira_audio::{Audio, AudioControl};
 
 pub const PLAYER_HEIGHT: f32 = 64.;
 pub const PLAYER_WIDTH: f32 = 28.;
@@ -84,6 +85,7 @@ fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
             health_amount: 10,
             size: Vec2::new(28., 64.),
             immune_to_bullets: false,
+            mass: Mass::Wood,
         })
         .insert(Movement {
             ..Default::default()
@@ -165,10 +167,10 @@ fn camera_follow_player(
 
 fn detect_collisions(
     mut player_q: Query<(&Transform, &mut Health), With<Player>>,
-    mut collidables_query: Query<(&Transform, &Collidable, &mut Health), Without<Player>>,
+    mut collidables_query: Query<(&Transform, &Collidable, Option<&mut Health>), Without<Player>>,
 ) {
     let (player_transform, mut player_health) = player_q.get_single_mut().unwrap();
-    for (collidable_transform, collidable, mut collidable_health) in collidables_query.iter_mut() {
+    for (collidable_transform, collidable, collidable_health) in collidables_query.iter_mut() {
         if collidable.is_alive == false {
             continue;
         }
@@ -180,7 +182,9 @@ fn detect_collisions(
         );
         if Option::is_some(&collision) {
             player_health.health_amount -= collidable.damage;
-            collidable_health.health_amount -= 1;
+            if let Some(mut col_health) = collidable_health {
+                col_health.health_amount -= 1;
+            }
         }
     }
 }
@@ -209,9 +213,12 @@ fn display_boat_damage(
 fn detect_player_dead(
     player_health_q: Query<&Health, With<Player>>,
     mut state: ResMut<NextState<GameState>>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
 ) {
     let player_health = player_health_q.get_single().unwrap();
     if player_health.health_amount <= 0 {
+        audio.play(audio_assets.boat_crash.clone()).with_volume(0.5);
         state.set(GameState::End);
     }
 }
@@ -289,6 +296,8 @@ fn player_shoot(
     mouse_input: Res<Input<MouseButton>>,
     time: Res<Time>,
     textures: Res<TextureAssets>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
 ) {
     let (cannon_transform, mut player_cannon) = player_cannon_q.get_single_mut().unwrap();
     let player = player_q.get_single().unwrap();
@@ -313,6 +322,7 @@ fn player_shoot(
                     ..Default::default()
                 });
             player_cannon.timer.reset();
+            audio.play(audio_assets.bullet_fire.clone()).with_volume(0.7);
         }
     }
 }

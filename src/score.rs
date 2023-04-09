@@ -41,7 +41,20 @@ fn update_distance(mut game_score: ResMut<GameScore>, player_q: Query<&Transform
 }
 
 // TODO SOUND
-// Power ups UI
+// Sounds that we need
+// Idle
+// Player moves
+// Player shoots x
+// Player dies x
+// Enemies shoot x
+// Enemies die
+// Barrel dies
+// Woodplank dies x
+// Health gathered x
+// Weapon power up gathered x
+// Weapon power up exhausted x
+// Background music
+
 // TODO Pirates - Standing on water / more health / more power
 
 fn restart_score(mut game_score: ResMut<GameScore>) {

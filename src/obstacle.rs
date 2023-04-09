@@ -1,11 +1,12 @@
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 use rand::Rng;
 use std::{f32::consts::PI, time::Duration};
 
 use crate::{
     environment::{Collidable, MAP_WIDTH},
-    health::Health,
-    loading::TextureAssets,
+    health::{Health, Mass},
+    loading::{TextureAssets, AudioAssets},
     menu::MainCamera,
     power_up::PowerUp,
     GameState,
@@ -77,6 +78,7 @@ fn spawn_obstacles(
             let size = OBSTACLE_SIZES[which_one_index];
             let health = if which_one_index > 2 { 1 } else { 100 };
             let damage = if which_one_index > 2 { 1 } else { 2 };
+            let mass = if which_one_index > 2 { Mass::Wood } else { Mass::Rock };
             let immune = which_one_index > 2;
             let position = get_random_obstacle_spawn_position();
             commands
@@ -97,6 +99,7 @@ fn spawn_obstacles(
                     health_amount: health,
                     size,
                     immune_to_bullets: immune,
+                    mass,
                 })
                 .insert(Collidable {
                     size,
@@ -104,7 +107,7 @@ fn spawn_obstacles(
                     is_alive: true,
                 });
             let mut rng = rand::thread_rng();
-            let duration = rng.gen_range(2500..5000); // TODO change with increasing difficulty
+            let duration = rng.gen_range(3500..6000); // TODO change with increasing difficulty
             timer.set_duration(Duration::from_millis(duration));
         }
     }
@@ -118,6 +121,8 @@ pub fn get_random_obstacle_spawn_position() -> f32 {
 fn detect_dead_obstacles(
     mut obstacles_q: Query<(&mut Collidable, &mut Handle<Image>, &Health), Without<PowerUp>>,
     textures: Res<TextureAssets>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>
 ) {
     for (mut obstacle, mut handle, health) in obstacles_q.iter_mut() {
         if obstacle.is_alive == false {
@@ -126,6 +131,7 @@ fn detect_dead_obstacles(
         if health.health_amount <= 0 {
             obstacle.is_alive = false;
             *handle = textures.obstacle_wood_dead.clone();
+            audio.play(audio_assets.wood_break.clone()).with_volume(0.3);
         }
     }
 }

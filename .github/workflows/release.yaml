@@ -17,7 +17,6 @@ env:
   #   if you use special characters, take a look at the 'Make paths relative' step in the 'build-web' job
   GAME_EXECUTABLE_NAME: grand_escape
   GAME_OSX_APP_NAME: GrandEscape
-  BUILD_INSTALLER: false
 
 permissions:
   contents: write
@@ -125,6 +124,7 @@ jobs:
     needs: get-version
     env:
       VERSION: ${{needs.get-version.outputs.version}}
+      BUILD_INSTALLER: false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2

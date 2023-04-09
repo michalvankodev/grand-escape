@@ -1,12 +1,13 @@
 use std::time::Duration;
 
 use bevy::{prelude::*, sprite::collide_aabb::collide};
+use bevy_kira_audio::{Audio, AudioControl};
 use rand::Rng;
 
 use crate::{
     environment::Collidable,
-    health::Health,
-    loading::TextureAssets,
+    health::{Health, Mass},
+    loading::{TextureAssets, AudioAssets},
     menu::MainCamera,
     obstacle::get_random_obstacle_spawn_position,
     player::{Player, PlayerCannon, PLAYER_SIZE},
@@ -46,7 +47,7 @@ impl Default for PowerUpSpawnTimers {
 
 #[derive(Resource)]
 pub struct PowerUpExhaustTimers {
-    weapon: Vec<Timer>,
+    pub weapon: Vec<Timer>,
 }
 
 impl Default for PowerUpExhaustTimers {
@@ -98,6 +99,7 @@ fn spawn_power_up_barrels(
                     health_amount: 1,
                     size: BARREL_SIZE,
                     immune_to_bullets: false,
+                    mass: Mass::Wood,
                 })
                 .insert(Collidable {
                     size: BARREL_SIZE,
@@ -157,6 +159,7 @@ fn detect_dead_barrels(
                     health_amount: 1,
                     size,
                     immune_to_bullets: true,
+                    mass: Mass::Wood,
                 })
                 .insert(Collidable {
                     size,
@@ -175,6 +178,8 @@ fn pick_up_power_ups(
     mut player_cannon_q: Query<&mut PlayerCannon>,
     power_ups_q: Query<(Entity, &Transform, &Collidable, &PowerUp), Without<Player>>,
     mut power_ups_exhaust_timers: ResMut<PowerUpExhaustTimers>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>
 ) {
     let (player_transform, mut player_health) = player_q.get_single_mut().unwrap();
     let mut player_cannon = player_cannon_q.get_single_mut().unwrap();
@@ -191,6 +196,7 @@ fn pick_up_power_ups(
                     player_health.max_health += 1;
                     player_health.health_amount =
                         (player_health.health_amount + 3).min(player_health.max_health);
+                    audio.play(audio_assets.repair.clone()).with_volume(0.4);
                 }
                 PowerUpType::Weapon => {
                     let current_timer_duration = player_cannon.timer.duration().as_millis();
@@ -202,6 +208,7 @@ fn pick_up_power_ups(
                     power_ups_exhaust_timers
                         .weapon
                         .push(Timer::new(Duration::from_secs(7), TimerMode::Once));
+                    audio.play(audio_assets.power_up_weapon.clone()).with_volume(0.7);
                 }
             }
             commands.entity(entity).despawn();
@@ -213,6 +220,8 @@ fn tick_exhaust_timers(
     mut exhaust_timers: ResMut<PowerUpExhaustTimers>,
     mut player_cannon_q: Query<&mut PlayerCannon>,
     time: Res<Time>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>
 ) {
     let mut player_cannon = player_cannon_q.get_single_mut().unwrap();
     for timer in exhaust_timers.weapon.iter_mut() {
@@ -227,6 +236,7 @@ fn tick_exhaust_timers(
                 (current_timer_duration as f32 * 1.25) as u64,
             ));
             player_cannon.turn_rate = current_turn_rate * 0.75;
+            audio.play(audio_assets.power_up_weapon_exhaust.clone()).with_volume(0.7);
         }
     }
     exhaust_timers.weapon.retain(|timer| !timer.finished());

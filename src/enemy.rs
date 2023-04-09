@@ -1,12 +1,13 @@
 use std::{f32::consts::PI, time::Duration};
 
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 use rand::Rng;
 
 use crate::{
     environment::{LAND_TILE_SIZE, MAP_WIDTH},
-    health::{Bullet, Health},
-    loading::TextureAssets,
+    health::{Bullet, Health, Mass},
+    loading::{TextureAssets, AudioAssets},
     menu::MainCamera,
     player::{Movement, Player},
     score::GameScore,
@@ -101,9 +102,10 @@ fn spawn_enemies(
                     health_amount: 2,
                     size: Vec2::new(64., 64.),
                     immune_to_bullets: false,
+                    mass: Mass::Wood,
                 });
             let mut rng = rand::thread_rng();
-            let duration = rng.gen_range(4500..6000);
+            let duration = rng.gen_range(4500..7000);
             timer.set_duration(Duration::from_millis(duration));
         }
     }
@@ -161,6 +163,8 @@ fn enemies_shoot_at_player(
     mut shooters_query: Query<(&mut Enemy, &Transform, Entity)>,
     time: Res<Time>,
     textures: Res<TextureAssets>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
 ) {
     for (mut enemy, transform, enemy_entity) in shooters_query.iter_mut() {
         enemy.shooting_timer.tick(time.delta());
@@ -185,6 +189,7 @@ fn enemies_shoot_at_player(
                     speed: 350.0,
                     ..Default::default()
                 });
+            audio.play(audio_assets.bullet_fire.clone()).with_volume(0.3);
         }
     }
 }
@@ -193,6 +198,8 @@ fn detect_killed_enemies(
     mut enemies_q: Query<(&mut Enemy, &mut Handle<Image>, &Health)>,
     textures: Res<TextureAssets>,
     mut game_score: ResMut<GameScore>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
 ) {
     for (mut enemy, mut handle, health) in enemies_q.iter_mut() {
         if enemy.is_alive == false {
@@ -202,6 +209,7 @@ fn detect_killed_enemies(
             enemy.is_alive = false;
             *handle = textures.enemy_cannon_crashed.clone();
             game_score.score += 10;
+            audio.play(audio_assets.boat_crash.clone()).with_volume(0.1);
         }
     }
 }

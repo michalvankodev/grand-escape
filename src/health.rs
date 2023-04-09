@@ -1,6 +1,12 @@
 use bevy::{prelude::*, sprite::collide_aabb::collide};
+use bevy_kira_audio::{Audio, AudioControl};
 
-use crate::{environment::MAP_WIDTH, GameState};
+use crate::{environment::MAP_WIDTH, GameState, loading::AudioAssets};
+
+pub enum Mass {
+    Wood,
+    Rock,
+}
 
 #[derive(Component)]
 pub struct Health {
@@ -8,6 +14,7 @@ pub struct Health {
     pub health_amount: i32,
     pub size: Vec2,
     pub immune_to_bullets: bool,
+    pub mass: Mass,
 }
 
 #[derive(Component)]
@@ -40,6 +47,8 @@ fn detect_bullet_collisions(
     mut commands: Commands,
     bullets_query: Query<(Entity, &Transform, &Bullet)>,
     mut health_query: Query<(&Transform, &mut Health, Entity)>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
 ) {
     for (bullet_entity, bullet_transform, bullet) in bullets_query.iter() {
         for (health_transform, mut health, entity) in health_query.iter_mut() {
@@ -55,6 +64,14 @@ fn detect_bullet_collisions(
             if Option::is_some(&collision) {
                 commands.entity(bullet_entity).despawn();
                 health.health_amount = health.health_amount - bullet.damage;
+                match health.mass {
+                    Mass::Wood => {
+                        audio.play(audio_assets.bullet_hit.clone()).with_volume(0.4);
+                    },
+                    Mass::Rock => {
+                        audio.play(audio_assets.bullet_hit_rock.clone()).with_volume(0.8);
+                    }
+                }
             }
         }
     }
