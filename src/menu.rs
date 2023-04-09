@@ -12,6 +12,7 @@ impl Plugin for MenuPlugin {
             .add_system(setup_menu.in_schedule(OnEnter(GameState::Menu)))
             .add_system(click_play_button.in_set(OnUpdate(GameState::Menu)))
             .add_system(click_play_button.in_set(OnUpdate(GameState::Paused)))
+            .add_system(click_play_button.in_set(OnUpdate(GameState::End)))
             .add_system(cleanup_menu.in_schedule(OnExit(GameState::Menu)));
     }
 }

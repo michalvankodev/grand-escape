@@ -7,6 +7,7 @@ mod loading;
 mod menu;
 mod obstacle;
 mod pause;
+mod end;
 mod player;
 mod score;
 mod ui;
@@ -24,6 +25,7 @@ use bevy::app::{App, AppExit};
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
+use end::EndPlugin;
 use health::HealthPlugin;
 use pause::PausePlugin;
 use score::ScorePlugin;
@@ -65,6 +67,7 @@ impl Plugin for GamePlugin {
             .add_plugin(UiPlugin)
             .add_plugin(ScorePlugin)
             .add_plugin(PausePlugin)
+            .add_plugin(EndPlugin)
             .add_system(exit_system.in_schedule(OnEnter(GameState::Exit)))
             .add_system(play_after_init.in_schedule(OnEnter(GameState::Init)))
             .add_system(init_after_restart.in_schedule(OnEnter(GameState::Restart)))

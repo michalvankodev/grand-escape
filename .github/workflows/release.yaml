@@ -17,6 +17,7 @@ env:
   #   if you use special characters, take a look at the 'Make paths relative' step in the 'build-web' job
   GAME_EXECUTABLE_NAME: bevy_game
   GAME_OSX_APP_NAME: BevyGame
+  BUILD_INSTALLER: false
 
 permissions:
   contents: write
@@ -133,6 +134,7 @@ jobs:
           toolchain: stable
           override: true
       - name: Install dotnet
+        if: ${{ env.BUILD_INSTALLER }}
         uses: actions/setup-dotnet@v3
         with:
           global-json-file: build/windows/installer/global.json
@@ -149,6 +151,7 @@ jobs:
           files: target/release/assets/ target/release/credits/ target/release/${{ env.GAME_EXECUTABLE_NAME }}.exe
           dest: ${{ env.GAME_EXECUTABLE_NAME }}_windows.zip
       - name: Create Installer
+        if: ${{ env.BUILD_INSTALLER }}
         run: dotnet build -c Release build/windows/installer/Installer.wixproj --output installer
       - name: Upload release
         uses: svenstaro/upload-release-action@v2
@@ -159,6 +162,7 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
       - name: Upload installer
+        if: ${{ env.BUILD_INSTALLER }}
         uses: svenstaro/upload-release-action@v2
         with:
          repo_token: ${{ secrets.GITHUB_TOKEN }}

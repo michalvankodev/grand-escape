@@ -15,7 +15,7 @@ fn main() {
         .insert_resource(ClearColor(Color::rgb(0.4, 0.4, 0.4)))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
-                title: "The grand escape".to_string(), // ToDo
+                title: "The grand escape".to_string(),
                 resolution: (760., 800.).into(),
                 canvas: Some("#bevy".to_owned()),
                 resizable: false,
