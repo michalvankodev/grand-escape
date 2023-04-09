@@ -9,7 +9,8 @@ use crate::{
     loading::TextureAssets,
     menu::MainCamera,
     player::{Movement, Player},
-    GameState, score::GameScore,
+    score::GameScore,
+    GameState,
 };
 
 pub struct EnemyPlugin;
@@ -53,8 +54,9 @@ impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<EnemySpawnTimers>()
             .add_system(spawn_enemies.in_set(OnUpdate(GameState::Playing)))
+            .add_system(despawn_enemies.in_schedule(OnEnter(GameState::Restart)))
             .add_system(enemies_shoot_at_player.in_set(OnUpdate(GameState::Playing)))
-            .add_system(despawn_enemies.in_set(OnUpdate(GameState::Playing)))
+            .add_system(despawn_enemies_out_of_sight.in_set(OnUpdate(GameState::Playing)))
             .add_system(detect_killed_enemies.in_set(OnUpdate(GameState::Playing)))
             .add_system(enemies_face_player.in_set(OnUpdate(GameState::Playing)));
     }
@@ -80,7 +82,7 @@ fn spawn_enemies(
         if timer.finished() {
             let position = get_random_spawn_position();
             let x = if let SpawnPosition::Right = position {
-                MAP_WIDTH + LAND_TILE_SIZE 
+                MAP_WIDTH + LAND_TILE_SIZE
             } else {
                 0.0 - LAND_TILE_SIZE
             };
@@ -115,7 +117,7 @@ fn get_random_spawn_position() -> SpawnPosition {
     }
 }
 
-pub fn despawn_enemies(
+pub fn despawn_enemies_out_of_sight(
     mut commands: Commands,
     enemy_query: Query<(Entity, &Transform), With<Enemy>>,
     camera_query: Query<&Transform, With<MainCamera>>,
@@ -126,6 +128,13 @@ pub fn despawn_enemies(
             commands.entity(enemy_entity).despawn();
         }
     }
+}
+
+pub fn despawn_enemies(mut commands: Commands, enemy_query: Query<Entity, With<Enemy>>, mut spawn_timers: ResMut<EnemySpawnTimers>) {
+    for enemy_entity in enemy_query.iter() {
+        commands.entity(enemy_entity).despawn_recursive();
+    }
+    *spawn_timers = EnemySpawnTimers::default();
 }
 
 fn enemies_face_player(

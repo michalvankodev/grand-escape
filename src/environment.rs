@@ -54,7 +54,8 @@ impl Plugin for EnvironmentPlugin {
         app.init_resource::<MapObject>()
             .add_system(spawn_water.in_set(OnUpdate(GameState::Playing)))
             .add_system(spawn_border.in_set(OnUpdate(GameState::Playing)))
-            .add_system(spawn_land.in_set(OnUpdate(GameState::Playing)));
+            .add_system(spawn_land.in_set(OnUpdate(GameState::Playing)))
+            .add_system(despawn_environment.in_schedule(OnEnter(GameState::Restart)));
     }
 }
 
@@ -166,8 +167,19 @@ fn spawn_land(
             .insert(LandTile)
             .insert(Collidable {
                 size: Vec2::new(LAND_TILE_SIZE, LAND_TILE_SIZE),
-                damage: 100
+                damage: 100,
             });
     }
     map_object.land_top = land_y;
+}
+
+fn despawn_environment(
+    mut commands: Commands,
+    entities_q: Query<Entity, Or<(With<LandTile>, With<BorderTile>, With<WaterTile>)>>,
+    mut map_object: ResMut<MapObject>,
+) {
+    for entity in entities_q.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+    *map_object = MapObject::default();
 }

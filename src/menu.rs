@@ -42,6 +42,7 @@ pub enum ButtonAction {
     PlayButton,
     ExitButton,
     ContinueButton,
+    RestartButton,
 }
 
 fn setup_menu(
@@ -250,10 +251,13 @@ fn click_play_button(
                     state.set(GameState::Init);
                 },
                 ButtonAction::ExitButton => {
-                    state.set(GameState::End);
+                    state.set(GameState::Exit);
                 }
                 ButtonAction::ContinueButton => {
                     state.set(GameState::Playing);
+                }
+                ButtonAction::RestartButton => {
+                    state.set(GameState::Restart);
                 }
             },
             Interaction::Hovered => {

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    loading::{FontAssets, TextureAssets},
+    loading::FontAssets,
     score::GameScore,
     GameState, health::Health, player::Player,
 };
@@ -11,6 +11,7 @@ pub struct UiPlugin;
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(setup_ui.in_schedule(OnEnter(GameState::Init)))
+            .add_system(despawn_ui.in_schedule(OnEnter(GameState::Restart)))
             .add_system(update_score.in_set(OnUpdate(GameState::Playing)))
             .add_system(update_health_bar.in_set(OnUpdate(GameState::Playing)));
     }
@@ -31,7 +32,7 @@ struct TimeText;
 #[derive(Component)]
 struct HealthBar;
 
-fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>, textures: Res<TextureAssets>) {
+fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>) {
     commands
         .spawn(NodeBundle {
             style: Style {
@@ -228,3 +229,7 @@ fn update_health_bar (
     health_bar.size = Size::width(Val::Percent(100. * (health.health_amount as f32 / health.max_health as f32)));
 }
 
+fn despawn_ui(mut commands: Commands, ui_q: Query<Entity, With<UiWrapper>>) {
+    let ui_entity = ui_q.get_single().unwrap();
+    commands.entity(ui_entity).despawn_recursive();
+}

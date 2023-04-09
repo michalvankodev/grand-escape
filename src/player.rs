@@ -47,6 +47,7 @@ impl Default for Movement {
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(spawn_player.in_schedule(OnEnter(GameState::Init)))
+            .add_system(despawn_player.in_schedule(OnEnter(GameState::Restart)))
             .add_system(move_player.in_set(OnUpdate(GameState::Playing)))
             .add_system(detect_collisions.in_set(OnUpdate(GameState::Playing)))
             .add_system(
@@ -99,6 +100,11 @@ fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
                     turn_rate: 3. * FRAC_PI_2,
                 });
         });
+}
+
+fn despawn_player(mut commands: Commands, player_q: Query<Entity, With<Player>>) {
+    let entity = player_q.get_single().unwrap();
+    commands.entity(entity).despawn_recursive();
 }
 
 fn continuous_movement(

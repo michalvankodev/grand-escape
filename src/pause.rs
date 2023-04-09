@@ -120,6 +120,29 @@ fn setup_pause_ui(
                                 }));
                         })
                         .insert(ButtonAction::ContinueButton);
+
+                        parent.spawn(ButtonBundle {
+                            style: Style {
+                                // size: Size::new(Val::Px(120.0), Val::Px(50.0)),
+                                margin: UiRect::all(Val::Auto),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                padding: UiRect::new(Val::Px(10.), Val::Px(10.), Val::Px(10.), Val::Px(10.)),
+                                ..Default::default()
+                            },
+                            background_color: button_colors.normal.into(),
+                            ..Default::default()
+                        })
+                        .with_children(|parent| {
+                            parent.spawn(TextBundle::from_section("Restart",
+                            TextStyle {
+                                font: font_assets.fira_sans_reg.clone(),
+                                font_size: 24.0,
+                                color: Color::rgb(0.9, 0.9, 0.9),
+                            }));
+                        })
+                        .insert(ButtonAction::RestartButton);
+
                         parent.spawn(ButtonBundle {
                             style: Style {
                                 // size: Size::new(Val::Px(120.0), Val::Px(50.0)),
@@ -139,7 +162,7 @@ fn setup_pause_ui(
                                 font_size: 24.0,
                                 color: Color::rgb(0.9, 0.9, 0.9),
                             }));
-                    })
+                        })
                         .insert(ButtonAction::ExitButton);
             });
         });

@@ -9,7 +9,7 @@ impl Plugin for ScorePlugin {
         app.init_resource::<GameScore>()
             .add_system(update_timer.in_set(OnUpdate(GameState::Playing)))
             .add_system(update_distance.in_set(OnUpdate(GameState::Playing)))
-            .add_system(restart_score.in_schedule(OnEnter(GameState::Menu)));
+            .add_system(restart_score.in_schedule(OnEnter(GameState::Restart)));
     }
 }
 
@@ -48,4 +48,7 @@ fn update_distance(mut game_score: ResMut<GameScore>, player_q: Query<&Transform
 // TODO Swap cannon / munition textures
 // TODO Side effects
 // TODO Pirates - Standing on water / more health / more power
-fn restart_score() {}
+
+fn restart_score(mut game_score: ResMut<GameScore>) {
+    *game_score = GameScore::default();
+}
