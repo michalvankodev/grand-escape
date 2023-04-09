@@ -80,8 +80,14 @@ pub struct TextureAssets {
     pub obstacle_wood2: Handle<Image>,
     #[asset(path = "textures/obstacle-wood3.png")]
     pub obstacle_wood3: Handle<Image>,
-    #[asset(path = "textures/obstacle-wood1.png")] // TODO design
+    #[asset(path = "textures/obstacle-wood-dead.png")]
     pub obstacle_wood_dead: Handle<Image>,
+    #[asset(path = "textures/barrel.png")]
+    pub barrel: Handle<Image>,
+    #[asset(path = "textures/heart.png")]
+    pub power_up_health: Handle<Image>,
+    #[asset(path = "textures/wheels.png")]
+    pub power_up_weapon: Handle<Image>,
     #[asset(path = "textures/logo.png")]
     pub logo: Handle<Image>,
     #[asset(path = "textures/play-button.png")]

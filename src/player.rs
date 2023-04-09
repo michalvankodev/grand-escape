@@ -13,6 +13,8 @@ use bevy::window::PrimaryWindow;
 
 pub const PLAYER_HEIGHT: f32 = 64.;
 pub const PLAYER_WIDTH: f32 = 28.;
+pub const PLAYER_SIZE: Vec2 = Vec2::new(PLAYER_WIDTH, PLAYER_HEIGHT);
+
 
 pub struct PlayerPlugin;
 
@@ -21,9 +23,9 @@ pub struct Player;
 
 #[derive(Component)]
 pub struct PlayerCannon {
-    vector: Vec2,
-    timer: Timer,
-    turn_rate: f32, // how many degrees we allow to turn cannon in one second
+    pub vector: Vec2,
+    pub timer: Timer,
+    pub turn_rate: f32, // how many degrees we allow to turn cannon in one second
 }
 
 // TODO move this into own plugin
@@ -166,14 +168,13 @@ fn detect_collisions(
     mut collidables_query: Query<(&Transform, &Collidable, &mut Health), Without<Player>>,
 ) {
     let (player_transform, mut player_health) = player_q.get_single_mut().unwrap();
-    let player_size = Vec2::new(PLAYER_WIDTH, PLAYER_HEIGHT);
     for (collidable_transform, collidable, mut collidable_health) in collidables_query.iter_mut() {
         if collidable.is_alive == false {
             continue;
         }
         let collision = collide(
             player_transform.translation,
-            player_size,
+            PLAYER_SIZE,
             collidable_transform.translation,
             collidable.size,
         );

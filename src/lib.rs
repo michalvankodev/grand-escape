@@ -9,6 +9,7 @@ mod obstacle;
 mod pause;
 mod end;
 mod player;
+mod power_up;
 mod score;
 mod ui;
 
@@ -28,6 +29,7 @@ use bevy::prelude::*;
 use end::EndPlugin;
 use health::HealthPlugin;
 use pause::PausePlugin;
+use power_up::PowerUpPlugin;
 use score::ScorePlugin;
 use ui::UiPlugin;
 
@@ -64,6 +66,7 @@ impl Plugin for GamePlugin {
             .add_plugin(EnemyPlugin)
             .add_plugin(EnvironmentPlugin)
             .add_plugin(ObstaclePlugin)
+            .add_plugin(PowerUpPlugin)
             .add_plugin(UiPlugin)
             .add_plugin(ScorePlugin)
             .add_plugin(PausePlugin)

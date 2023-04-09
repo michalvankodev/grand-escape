@@ -7,6 +7,7 @@ use crate::{
     health::Health,
     loading::TextureAssets,
     menu::MainCamera,
+    power_up::PowerUp,
     GameState,
 };
 
@@ -19,9 +20,9 @@ pub struct ObstacleSpawnTimers {
 }
 
 const OBSTACLE_SIZES: [bevy::prelude::Vec2; 6] = [
-    Vec2::new(58., 59.),
-    Vec2::new(51., 53.),
-    Vec2::new(60., 41.),
+    Vec2::new(55., 57.),
+    Vec2::new(48., 50.),
+    Vec2::new(55., 37.),
     Vec2::new(32., 11.),
     Vec2::new(32., 9.),
     Vec2::new(32., 9.),
@@ -76,7 +77,7 @@ fn spawn_obstacles(
             let size = OBSTACLE_SIZES[which_one_index];
             let health = if which_one_index > 2 { 1 } else { 100 };
             let damage = if which_one_index > 2 { 1 } else { 2 };
-            let immune =  which_one_index > 2;
+            let immune = which_one_index > 2;
             let position = get_random_obstacle_spawn_position();
             commands
                 .spawn(SpriteBundle {
@@ -95,9 +96,13 @@ fn spawn_obstacles(
                     max_health: health,
                     health_amount: health,
                     size,
-                    immune_to_bullets: immune 
+                    immune_to_bullets: immune,
                 })
-                .insert(Collidable { size, damage, is_alive: true });
+                .insert(Collidable {
+                    size,
+                    damage,
+                    is_alive: true,
+                });
             let mut rng = rand::thread_rng();
             let duration = rng.gen_range(2500..5000); // TODO change with increasing difficulty
             timer.set_duration(Duration::from_millis(duration));
@@ -105,13 +110,13 @@ fn spawn_obstacles(
     }
 }
 
-fn get_random_obstacle_spawn_position() -> f32 {
+pub fn get_random_obstacle_spawn_position() -> f32 {
     let mut rng = rand::thread_rng();
     rng.gen_range(30.0..MAP_WIDTH - 30.)
 }
 
 fn detect_dead_obstacles(
-    mut obstacles_q: Query<(&mut Collidable, &mut Handle<Image>, &Health)>,
+    mut obstacles_q: Query<(&mut Collidable, &mut Handle<Image>, &Health), Without<PowerUp>>,
     textures: Res<TextureAssets>,
 ) {
     for (mut obstacle, mut handle, health) in obstacles_q.iter_mut() {
