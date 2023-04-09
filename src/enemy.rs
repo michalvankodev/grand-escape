@@ -103,7 +103,7 @@ fn spawn_enemies(
                     immune_to_bullets: false,
                 });
             let mut rng = rand::thread_rng();
-            let duration = rng.gen_range(3500..5000);
+            let duration = rng.gen_range(4500..6000);
             timer.set_duration(Duration::from_millis(duration));
         }
     }
