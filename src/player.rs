@@ -74,7 +74,6 @@ fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
             texture: textures.boat.clone(),
             transform: Transform::from_translation(Vec3::new(center_x, center_y, 5.))
                 .with_rotation(Quat::from_rotation_z(0.)),
-            // transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.)),
             ..Default::default()
         })
         .insert(Player)
@@ -82,6 +81,7 @@ fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
             max_health: 10,
             health_amount: 10,
             size: Vec2::new(28., 64.),
+            immune_to_bullets: false,
         })
         .insert(Movement {
             ..Default::default()
@@ -90,7 +90,7 @@ fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
             parent
                 .spawn(SpriteBundle {
                     texture: textures.boat_cannon.clone(),
-                    transform: Transform::from_translation(Vec3::new(0., 13., 5.1))
+                    transform: Transform::from_translation(Vec3::new(0., 20., 5.1))
                         .with_rotation(Quat::from_rotation_z(0.)),
                     ..Default::default()
                 })
@@ -163,11 +163,14 @@ fn camera_follow_player(
 
 fn detect_collisions(
     mut player_q: Query<(&Transform, &mut Health), With<Player>>,
-    collidables_query: Query<(&Transform, &Collidable)>,
+    mut collidables_query: Query<(&Transform, &Collidable, &mut Health), Without<Player>>,
 ) {
     let (player_transform, mut player_health) = player_q.get_single_mut().unwrap();
     let player_size = Vec2::new(PLAYER_WIDTH, PLAYER_HEIGHT);
-    for (collidable_transform, collidable) in collidables_query.iter() {
+    for (collidable_transform, collidable, mut collidable_health) in collidables_query.iter_mut() {
+        if collidable.is_alive == false {
+            continue;
+        }
         let collision = collide(
             player_transform.translation,
             player_size,
@@ -176,6 +179,7 @@ fn detect_collisions(
         );
         if Option::is_some(&collision) {
             player_health.health_amount -= collidable.damage;
+            collidable_health.health_amount -= 1;
         }
     }
 }

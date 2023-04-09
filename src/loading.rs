@@ -40,8 +40,6 @@ pub struct AudioAssets {
 
 #[derive(AssetCollection, Resource)]
 pub struct TextureAssets {
-    #[asset(path = "textures/bevy.png")]
-    pub texture_bevy: Handle<Image>,
     #[asset(path = "textures/boat2-36x64.png")]
     pub boat: Handle<Image>,
     #[asset(path = "textures/boat-damage1.png")]
@@ -76,6 +74,14 @@ pub struct TextureAssets {
     pub obstacle_rock2: Handle<Image>,
     #[asset(path = "textures/obstacle-rock3-60x41.png")]
     pub obstacle_rock3: Handle<Image>,
+    #[asset(path = "textures/obstacle-wood1.png")]
+    pub obstacle_wood1: Handle<Image>,
+    #[asset(path = "textures/obstacle-wood2.png")]
+    pub obstacle_wood2: Handle<Image>,
+    #[asset(path = "textures/obstacle-wood3.png")]
+    pub obstacle_wood3: Handle<Image>,
+    #[asset(path = "textures/obstacle-wood1.png")] // TODO design
+    pub obstacle_wood_dead: Handle<Image>,
     #[asset(path = "textures/logo.png")]
     pub logo: Handle<Image>,
     #[asset(path = "textures/play-button.png")]

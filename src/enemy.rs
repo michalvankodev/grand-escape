@@ -100,6 +100,7 @@ fn spawn_enemies(
                     max_health: 2,
                     health_amount: 2,
                     size: Vec2::new(64., 64.),
+                    immune_to_bullets: false,
                 });
             let mut rng = rand::thread_rng();
             let duration = rng.gen_range(3500..5000);

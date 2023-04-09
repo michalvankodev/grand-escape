@@ -18,10 +18,13 @@ pub struct ObstacleSpawnTimers {
     timers: Vec<Timer>,
 }
 
-const OBSTACLE_SIZES: [bevy::prelude::Vec2; 3] = [
+const OBSTACLE_SIZES: [bevy::prelude::Vec2; 6] = [
     Vec2::new(58., 59.),
     Vec2::new(51., 53.),
     Vec2::new(60., 41.),
+    Vec2::new(32., 11.),
+    Vec2::new(32., 9.),
+    Vec2::new(32., 9.),
 ];
 
 impl Default for ObstacleSpawnTimers {
@@ -41,6 +44,7 @@ impl Plugin for ObstaclePlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<ObstacleSpawnTimers>()
             .add_system(despawn_obstacles.in_schedule(OnEnter(GameState::Restart)))
+            .add_system(detect_dead_obstacles.in_set(OnUpdate(GameState::Playing)))
             .add_system(spawn_obstacles.in_set(OnUpdate(GameState::Playing)));
     }
 }
@@ -61,12 +65,18 @@ fn spawn_obstacles(
                 textures.obstacle_rock1.clone(),
                 textures.obstacle_rock2.clone(),
                 textures.obstacle_rock3.clone(),
+                textures.obstacle_wood1.clone(),
+                textures.obstacle_wood2.clone(),
+                textures.obstacle_wood3.clone(),
             ];
             let mut rng = rand::thread_rng();
-            let which_one_index = rng.gen_range(0..2);
+            let which_one_index = rng.gen_range(0..6);
             let random_angle = rng.gen_range(0.0..2. * PI);
             let obstacle_texture = &available_obstacles[which_one_index];
             let size = OBSTACLE_SIZES[which_one_index];
+            let health = if which_one_index > 2 { 1 } else { 100 };
+            let damage = if which_one_index > 2 { 1 } else { 2 };
+            let immune =  which_one_index > 2;
             let position = get_random_obstacle_spawn_position();
             commands
                 .spawn(SpriteBundle {
@@ -82,11 +92,12 @@ fn spawn_obstacles(
                 })
                 .insert(ObstacleTile)
                 .insert(Health {
-                    max_health: 100,
-                    health_amount: 100,
+                    max_health: health,
+                    health_amount: health,
                     size,
+                    immune_to_bullets: immune 
                 })
-                .insert(Collidable { size, damage: 7 });
+                .insert(Collidable { size, damage, is_alive: true });
             let mut rng = rand::thread_rng();
             let duration = rng.gen_range(2500..5000); // TODO change with increasing difficulty
             timer.set_duration(Duration::from_millis(duration));
@@ -97,6 +108,21 @@ fn spawn_obstacles(
 fn get_random_obstacle_spawn_position() -> f32 {
     let mut rng = rand::thread_rng();
     rng.gen_range(30.0..MAP_WIDTH - 30.)
+}
+
+fn detect_dead_obstacles(
+    mut obstacles_q: Query<(&mut Collidable, &mut Handle<Image>, &Health)>,
+    textures: Res<TextureAssets>,
+) {
+    for (mut obstacle, mut handle, health) in obstacles_q.iter_mut() {
+        if obstacle.is_alive == false {
+            continue;
+        }
+        if health.health_amount <= 0 {
+            obstacle.is_alive = false;
+            *handle = textures.obstacle_wood_dead.clone();
+        }
+    }
 }
 
 fn despawn_obstacles(

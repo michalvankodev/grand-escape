@@ -7,6 +7,7 @@ pub struct Health {
     pub max_health: i32,
     pub health_amount: i32,
     pub size: Vec2,
+    pub immune_to_bullets: bool,
 }
 
 #[derive(Component)]
@@ -42,7 +43,7 @@ fn detect_bullet_collisions(
 ) {
     for (bullet_entity, bullet_transform, bullet) in bullets_query.iter() {
         for (health_transform, mut health, entity) in health_query.iter_mut() {
-            if bullet.shooter == entity {
+            if bullet.shooter == entity || health.immune_to_bullets {
                 continue;
             }
             let collision = collide(

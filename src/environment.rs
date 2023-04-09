@@ -15,6 +15,7 @@ pub struct EnvironmentPlugin;
 pub struct Collidable {
     pub size: Vec2,
     pub damage: i32,
+    pub is_alive: bool,
 }
 
 #[derive(Component)]
@@ -168,6 +169,7 @@ fn spawn_land(
             .insert(Collidable {
                 size: Vec2::new(LAND_TILE_SIZE, LAND_TILE_SIZE),
                 damage: 100,
+                is_alive: true,
             });
     }
     map_object.land_top = land_y;
