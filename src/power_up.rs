@@ -115,11 +115,13 @@ fn despawn_power_ups(
     mut commands: Commands,
     power_up_q: Query<Entity, Or<(With<PowerUp>, With<PowerUpBarrel>)>>,
     mut power_up_spawn_timers: ResMut<PowerUpSpawnTimers>,
+    mut exhaust_timers: ResMut<PowerUpExhaustTimers>
 ) {
     for entity in power_up_q.iter() {
         commands.entity(entity).despawn_recursive();
     }
     *power_up_spawn_timers = PowerUpSpawnTimers::default();
+    *exhaust_timers = PowerUpExhaustTimers::default();
 }
 
 fn detect_dead_barrels(
@@ -196,7 +198,7 @@ fn pick_up_power_ups(
                     player_cannon.timer.set_duration(Duration::from_millis(
                         (current_timer_duration as f32 * 0.75) as u64,
                     ));
-                    player_cannon.turn_rate = current_turn_rate * 0.75;
+                    player_cannon.turn_rate = current_turn_rate * 1.25;
                     power_ups_exhaust_timers
                         .weapon
                         .push(Timer::new(Duration::from_secs(7), TimerMode::Once));
@@ -224,7 +226,7 @@ fn tick_exhaust_timers(
             player_cannon.timer.set_duration(Duration::from_millis(
                 (current_timer_duration as f32 * 1.25) as u64,
             ));
-            player_cannon.turn_rate = current_turn_rate * 1.25;
+            player_cannon.turn_rate = current_turn_rate * 0.75;
         }
     }
     exhaust_timers.weapon.retain(|timer| !timer.finished());

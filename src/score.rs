@@ -41,9 +41,7 @@ fn update_distance(mut game_score: ResMut<GameScore>, player_q: Query<&Transform
 }
 
 // TODO SOUND
-// TODO Heath regenaration / Picking up upgrades from barrels
-// TODO Weapon upgrades
-// TODO Side effects
+// Power ups UI
 // TODO Pirates - Standing on water / more health / more power
 
 fn restart_score(mut game_score: ResMut<GameScore>) {
