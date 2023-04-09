@@ -35,8 +35,6 @@ impl Default for ObstacleSpawnTimers {
     }
 }
 
-// TODO Rotation of rocks random
-
 pub struct ObstaclePlugin;
 
 impl Plugin for ObstaclePlugin {

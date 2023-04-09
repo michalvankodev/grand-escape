@@ -20,7 +20,7 @@ use crate::menu::MenuPlugin;
 use crate::obstacle::ObstaclePlugin;
 use crate::player::PlayerPlugin;
 
-use bevy::app::App;
+use bevy::app::{App, AppExit};
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
@@ -65,6 +65,7 @@ impl Plugin for GamePlugin {
             .add_plugin(UiPlugin)
             .add_plugin(ScorePlugin)
             .add_plugin(PausePlugin)
+            .add_system(exit_system.in_schedule(OnEnter(GameState::Exit)))
             .add_system(play_after_init.in_schedule(OnEnter(GameState::Init)))
             .add_system(init_after_restart.in_schedule(OnEnter(GameState::Restart)))
             .add_system(change_cursor.in_schedule(OnEnter(GameState::Playing)))
@@ -94,4 +95,8 @@ fn change_cursor(mut windows: Query<&mut Window>) {
 fn change_cursor_back(mut windows: Query<&mut Window>) {
     let mut window = windows.single_mut();
     window.cursor.icon = CursorIcon::Default;
+}
+
+fn exit_system(mut exit: EventWriter<AppExit>) {
+    exit.send(AppExit);
 }
