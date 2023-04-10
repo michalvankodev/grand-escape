@@ -195,7 +195,6 @@ pub fn get_random_pirate_spawn_position(
 ) -> f32 {
     let mut rng = rand::thread_rng();
     let x = rng.gen_range(40.0..MAP_WIDTH - 40.);
-    // TODO Check if collides with obstacle
     let is_colliding = obstacles_q
         .iter()
         .any(|(collidable_transform, collidable)| {

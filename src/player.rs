@@ -131,7 +131,6 @@ fn rotate_transform_to_movement(mut transform_query: Query<(&mut Transform, &Mov
     }
 }
 
-// TODO breaking optional
 fn move_player(
     time: Res<Time>,
     actions: Res<Actions>,

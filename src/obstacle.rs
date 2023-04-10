@@ -114,7 +114,7 @@ fn spawn_obstacles(
                     is_alive: true,
                 });
             let mut rng = rand::thread_rng();
-            let duration = rng.gen_range(3500..6000); // TODO change with increasing difficulty
+            let duration = rng.gen_range(3500..6000);
             timer.set_duration(Duration::from_millis(duration));
         }
     }

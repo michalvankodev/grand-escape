@@ -44,9 +44,6 @@ fn update_distance(mut game_score: ResMut<GameScore>, player_q: Query<&Transform
 // Idle
 // Background music
 
-// TODO Pirates - Standing on water / more health / more power
-// TODO Progressively make the game harder
-
 fn restart_score(mut game_score: ResMut<GameScore>) {
     *game_score = GameScore::default();
 }

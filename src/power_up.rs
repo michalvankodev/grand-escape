@@ -107,7 +107,7 @@ fn spawn_power_up_barrels(
                     is_alive: true,
                 });
             let mut rng = rand::thread_rng();
-            let duration = rng.gen_range(10000..20000); // TODO change with increasing difficulty
+            let duration = rng.gen_range(10000..20000);
             timer.set_duration(Duration::from_millis(duration));
         }
     }
