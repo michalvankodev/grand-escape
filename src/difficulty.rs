@@ -15,7 +15,8 @@ pub struct DifficultyPlugin;
 
 impl Plugin for DifficultyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(change_difficulty.in_set(OnUpdate(GameState::Playing)));
+        app.add_system(change_difficulty.in_set(OnUpdate(GameState::Playing)))
+            .add_system(restart_difficulty.in_schedule(OnEnter(GameState::Restart)));
     }
 }
 
@@ -39,4 +40,8 @@ fn change_difficulty(
         }
         _ => {}
     }
+}
+
+fn restart_difficulty(mut next_state: ResMut<NextState<Difficulty>>) {
+    next_state.set(Difficulty::Initial);
 }

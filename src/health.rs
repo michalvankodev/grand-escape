@@ -1,7 +1,7 @@
 use bevy::{prelude::*, sprite::collide_aabb::collide};
 use bevy_kira_audio::{Audio, AudioControl};
 
-use crate::{environment::MAP_WIDTH, GameState, loading::AudioAssets};
+use crate::{environment::MAP_WIDTH, loading::AudioAssets, GameState};
 
 pub enum Mass {
     Wood,
@@ -39,7 +39,8 @@ pub struct HealthPlugin;
 impl Plugin for HealthPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(detect_bullet_collisions.in_set(OnUpdate(GameState::Playing)))
-            .add_system(despawn_blind_bullets.in_set(OnUpdate(GameState::Playing)));
+            .add_system(despawn_blind_bullets.in_set(OnUpdate(GameState::Playing)))
+            .add_system(despawn_bullets.in_schedule(OnEnter(GameState::Restart)));
     }
 }
 
@@ -67,9 +68,11 @@ fn detect_bullet_collisions(
                 match health.mass {
                     Mass::Wood => {
                         audio.play(audio_assets.bullet_hit.clone()).with_volume(0.4);
-                    },
+                    }
                     Mass::Rock => {
-                        audio.play(audio_assets.bullet_hit_rock.clone()).with_volume(0.8);
+                        audio
+                            .play(audio_assets.bullet_hit_rock.clone())
+                            .with_volume(0.8);
                     }
                 }
             }
@@ -85,5 +88,11 @@ fn despawn_blind_bullets(
         if transform.translation.x < -100. || transform.translation.x > MAP_WIDTH + 100. {
             commands.entity(bullet_entity).despawn();
         }
+    }
+}
+
+fn despawn_bullets(mut commands: Commands, bullet_query: Query<Entity, With<Bullet>>) {
+    for bullet_entity in bullet_query.iter() {
+        commands.entity(bullet_entity).despawn();
     }
 }

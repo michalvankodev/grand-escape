@@ -27,7 +27,9 @@ impl Plugin for EnemyPlugin {
             .add_system(pirates_shoot_at_player.in_set(OnUpdate(GameState::Playing)))
             .add_system(despawn_enemies_out_of_sight.in_set(OnUpdate(GameState::Playing)))
             .add_system(detect_killed_enemies.in_set(OnUpdate(GameState::Playing)))
+            .add_system(detect_killed_pirates.in_set(OnUpdate(GameState::Playing)))
             .add_system(enemies_face_player.in_set(OnUpdate(GameState::Playing)))
+            .add_system(display_pirate_damage.in_set(OnUpdate(GameState::Playing)))
             .add_system(pirate_cannons_face_player.in_set(OnUpdate(GameState::Playing)))
             .add_system(increase_difficulty_medium.in_schedule(OnEnter(Difficulty::Medium)))
             .add_system(increase_difficulty_hard.in_schedule(OnEnter(Difficulty::Hard)));
@@ -325,12 +327,10 @@ fn pirates_shoot_at_player(
 ) {
     for (mut enemy_cannon, global_transform, enemy_pirate) in shooters_query.iter_mut() {
         enemy_cannon.shooting_timer.tick(time.delta());
-        info!("Pirate shooting check");
         if enemy_cannon.is_alive == false {
             continue;
         }
         if enemy_cannon.shooting_timer.finished() {
-            info!("shooting");
             let enemy_translation = global_transform.translation().truncate();
             commands
                 .spawn(SpriteBundle {
@@ -375,6 +375,27 @@ fn detect_killed_enemies(
     }
 }
 
+fn detect_killed_pirates(
+    mut enemies_q: Query<(&Children, &Health), With<EnemyPirate>>,
+    mut children_q: Query<&mut EnemyPirateCannon>,
+    mut game_score: ResMut<GameScore>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
+) {
+    for (children, health) in enemies_q.iter_mut() {
+        let cannon_entity = children[0];
+        let mut cannon = children_q.get_mut(cannon_entity).unwrap();
+        if cannon.is_alive == false {
+            continue;
+        }
+        if health.health_amount <= 0 {
+            cannon.is_alive = false;
+            game_score.score += 30;
+            audio.play(audio_assets.boat_crash.clone()).with_volume(0.1);
+        }
+    }
+}
+
 fn increase_difficulty_medium(mut spawn_timers: ResMut<EnemySpawnTimers>) {
     spawn_timers
         .pirate_ships
@@ -388,4 +409,26 @@ fn increase_difficulty_hard(mut spawn_timers: ResMut<EnemySpawnTimers>) {
     spawn_timers
         .side_cannons
         .push(Timer::new(Duration::from_secs(5), TimerMode::Repeating));
+}
+
+fn display_pirate_damage(
+    mut pirate_q: Query<(&mut Handle<Image>, &Health), With<EnemyPirate>>,
+    textures: Res<TextureAssets>,
+) {
+    for (mut handle, health) in pirate_q.iter_mut() {
+        let health_percentage = health.health_amount as f32 / health.max_health as f32 * 100.;
+        let next_texture = if health_percentage <= 0. {
+            &textures.enemy_pirate1_crashed
+        } else if health_percentage <= 40. {
+            &textures.enemy_pirate1_dmg2
+        } else if health_percentage <= 70. {
+            &textures.enemy_pirate1_dmg1
+        } else {
+            &textures.enemy_pirate1
+        };
+
+        if *handle != *next_texture {
+            *handle = next_texture.clone();
+        }
+    }
 }
