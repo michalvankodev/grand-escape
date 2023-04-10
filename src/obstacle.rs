@@ -6,11 +6,24 @@ use std::{f32::consts::PI, time::Duration};
 use crate::{
     environment::{Collidable, MAP_WIDTH},
     health::{Health, Mass},
-    loading::{TextureAssets, AudioAssets},
+    loading::{AudioAssets, TextureAssets},
     menu::MainCamera,
     power_up::PowerUp,
-    GameState,
+    GameState, difficulty::Difficulty,
 };
+
+pub struct ObstaclePlugin;
+
+impl Plugin for ObstaclePlugin {
+    fn build(&self, app: &mut App) {
+        app.init_resource::<ObstacleSpawnTimers>()
+            .add_system(despawn_obstacles.in_schedule(OnEnter(GameState::Restart)))
+            .add_system(detect_dead_obstacles.in_set(OnUpdate(GameState::Playing)))
+            .add_system(spawn_obstacles.in_set(OnUpdate(GameState::Playing)))
+            .add_system(increase_difficulty_medium.in_schedule(OnEnter(Difficulty::Medium)))
+            .add_system(increase_difficulty_hard.in_schedule(OnEnter(Difficulty::Hard)));
+    }
+}
 
 #[derive(Component)]
 pub struct ObstacleTile;
@@ -40,16 +53,6 @@ impl Default for ObstacleSpawnTimers {
     }
 }
 
-pub struct ObstaclePlugin;
-
-impl Plugin for ObstaclePlugin {
-    fn build(&self, app: &mut App) {
-        app.init_resource::<ObstacleSpawnTimers>()
-            .add_system(despawn_obstacles.in_schedule(OnEnter(GameState::Restart)))
-            .add_system(detect_dead_obstacles.in_set(OnUpdate(GameState::Playing)))
-            .add_system(spawn_obstacles.in_set(OnUpdate(GameState::Playing)));
-    }
-}
 
 fn spawn_obstacles(
     mut commands: Commands,
@@ -78,7 +81,11 @@ fn spawn_obstacles(
             let size = OBSTACLE_SIZES[which_one_index];
             let health = if which_one_index > 2 { 1 } else { 100 };
             let damage = if which_one_index > 2 { 1 } else { 2 };
-            let mass = if which_one_index > 2 { Mass::Wood } else { Mass::Rock };
+            let mass = if which_one_index > 2 {
+                Mass::Wood
+            } else {
+                Mass::Rock
+            };
             let immune = which_one_index > 2;
             let position = get_random_obstacle_spawn_position();
             commands
@@ -122,7 +129,7 @@ fn detect_dead_obstacles(
     mut obstacles_q: Query<(&mut Collidable, &mut Handle<Image>, &Health), Without<PowerUp>>,
     textures: Res<TextureAssets>,
     audio: Res<Audio>,
-    audio_assets: Res<AudioAssets>
+    audio_assets: Res<AudioAssets>,
 ) {
     for (mut obstacle, mut handle, health) in obstacles_q.iter_mut() {
         if obstacle.is_alive == false {
@@ -145,4 +152,16 @@ fn despawn_obstacles(
         commands.entity(entity).despawn_recursive();
     }
     *obstacle_spawn_timers = ObstacleSpawnTimers::default();
+}
+
+fn increase_difficulty_medium(mut spawn_timers: ResMut<ObstacleSpawnTimers>) {
+    spawn_timers
+        .timers
+        .push(Timer::new(Duration::from_secs(5), TimerMode::Repeating));
+}
+
+fn increase_difficulty_hard(mut spawn_timers: ResMut<ObstacleSpawnTimers>) {
+    spawn_timers
+        .timers
+        .push(Timer::new(Duration::from_secs(5), TimerMode::Repeating));
 }

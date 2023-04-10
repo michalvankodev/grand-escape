@@ -315,6 +315,7 @@ fn player_shoot(
                     )),
                     ..Default::default()
                 })
+                    // TODO 
                 .insert(Bullet::new(player))
                 .insert(Movement {
                     vector: player_cannon.vector,

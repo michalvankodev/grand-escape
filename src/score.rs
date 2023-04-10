@@ -1,6 +1,6 @@
 use bevy::{prelude::*, time::Stopwatch};
 
-use crate::{player::Player, GameState, environment::MAP_HEIGHT};
+use crate::{environment::MAP_HEIGHT, player::Player, GameState};
 
 pub struct ScorePlugin;
 
@@ -36,26 +36,16 @@ fn update_timer(mut game_score: ResMut<GameScore>, time: Res<Time>) {
 
 fn update_distance(mut game_score: ResMut<GameScore>, player_q: Query<&Transform, With<Player>>) {
     let start_y = MAP_HEIGHT / 2.;
-    let distance_in_world = player_q.get_single().unwrap().translation.y - start_y ;
+    let distance_in_world = player_q.get_single().unwrap().translation.y - start_y;
     game_score.distance_traveled = distance_in_world / 16.;
 }
 
 // TODO SOUND
-// Sounds that we need
 // Idle
-// Player moves
-// Player shoots x
-// Player dies x
-// Enemies shoot x
-// Enemies die
-// Barrel dies
-// Woodplank dies x
-// Health gathered x
-// Weapon power up gathered x
-// Weapon power up exhausted x
 // Background music
 
 // TODO Pirates - Standing on water / more health / more power
+// TODO Progressively make the game harder
 
 fn restart_score(mut game_score: ResMut<GameScore>) {
     *game_score = GameScore::default();

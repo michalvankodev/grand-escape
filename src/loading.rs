@@ -70,6 +70,22 @@ pub struct TextureAssets {
     pub enemy_cannon: Handle<Image>,
     #[asset(path = "textures/enemy-cannon-crashed-64x64.png")]
     pub enemy_cannon_crashed: Handle<Image>,
+    #[asset(path = "textures/enemy-pirate1-full.png")]
+    pub enemy_pirate1: Handle<Image>,
+    #[asset(path = "textures/enemy-pirate1-damage1.png")]
+    pub enemy_pirate1_dmg1: Handle<Image>,
+    #[asset(path = "textures/enemy-pirate1-damage2.png")]
+    pub enemy_pirate1_dmg2: Handle<Image>,
+    #[asset(path = "textures/enemy-pirate1-crashed.png")]
+    pub enemy_pirate1_crashed: Handle<Image>,
+    #[asset(path = "textures/enemy-pirate2-full.png")]
+    pub enemy_pirate2: Handle<Image>,
+    #[asset(path = "textures/enemy-pirate2-damage1.png")]
+    pub enemy_pirate2_dmg1: Handle<Image>,
+    #[asset(path = "textures/enemy-pirate2-damage2.png")]
+    pub enemy_pirate2_dmg2: Handle<Image>,
+    #[asset(path = "textures/enemy-pirate2-crashed.png")]
+    pub enemy_pirate2_crashed: Handle<Image>,
     #[asset(path = "textures/bullet-32x32.png")]
     pub bullet: Handle<Image>,
     #[asset(path = "textures/water8-64x64.png")]

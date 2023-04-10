@@ -1,5 +1,7 @@
 mod actions;
 mod audio;
+mod difficulty;
+mod end;
 mod enemy;
 mod environment;
 mod health;
@@ -7,7 +9,6 @@ mod loading;
 mod menu;
 mod obstacle;
 mod pause;
-mod end;
 mod player;
 mod power_up;
 mod score;
@@ -26,6 +27,7 @@ use bevy::app::{App, AppExit};
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
+use difficulty::{Difficulty, DifficultyPlugin};
 use end::EndPlugin;
 use health::HealthPlugin;
 use pause::PausePlugin;
@@ -57,6 +59,7 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<GameState>()
+            .add_state::<Difficulty>()
             .add_plugin(LoadingPlugin)
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
@@ -71,6 +74,7 @@ impl Plugin for GamePlugin {
             .add_plugin(ScorePlugin)
             .add_plugin(PausePlugin)
             .add_plugin(EndPlugin)
+            .add_plugin(DifficultyPlugin)
             .add_system(exit_system.in_schedule(OnEnter(GameState::Exit)))
             .add_system(play_after_init.in_schedule(OnEnter(GameState::Init)))
             .add_system(init_after_restart.in_schedule(OnEnter(GameState::Restart)))
