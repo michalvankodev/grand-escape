@@ -26,7 +26,11 @@ struct WaterAudioChannel;
 #[derive(Resource)]
 struct WaterAudio(Handle<AudioInstance>);
 
-fn start_audio(mut commands: Commands, audio_assets: Res<AudioAssets>, audio: Res<AudioChannel<WaterAudioChannel>>) {
+fn start_audio(
+    mut commands: Commands,
+    audio_assets: Res<AudioAssets>,
+    audio: Res<AudioChannel<WaterAudioChannel>>,
+) {
     audio.pause();
     let handle = audio
         .play(audio_assets.water.clone())

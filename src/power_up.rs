@@ -7,7 +7,7 @@ use rand::Rng;
 use crate::{
     environment::Collidable,
     health::{Health, Mass},
-    loading::{TextureAssets, AudioAssets},
+    loading::{AudioAssets, TextureAssets},
     menu::MainCamera,
     obstacle::get_random_obstacle_spawn_position,
     player::{Player, PlayerCannon, PLAYER_SIZE},
@@ -117,7 +117,7 @@ fn despawn_power_ups(
     mut commands: Commands,
     power_up_q: Query<Entity, Or<(With<PowerUp>, With<PowerUpBarrel>)>>,
     mut power_up_spawn_timers: ResMut<PowerUpSpawnTimers>,
-    mut exhaust_timers: ResMut<PowerUpExhaustTimers>
+    mut exhaust_timers: ResMut<PowerUpExhaustTimers>,
 ) {
     for entity in power_up_q.iter() {
         commands.entity(entity).despawn_recursive();
@@ -179,7 +179,7 @@ fn pick_up_power_ups(
     power_ups_q: Query<(Entity, &Transform, &Collidable, &PowerUp), Without<Player>>,
     mut power_ups_exhaust_timers: ResMut<PowerUpExhaustTimers>,
     audio: Res<Audio>,
-    audio_assets: Res<AudioAssets>
+    audio_assets: Res<AudioAssets>,
 ) {
     let (player_transform, mut player_health) = player_q.get_single_mut().unwrap();
     let mut player_cannon = player_cannon_q.get_single_mut().unwrap();
@@ -208,7 +208,9 @@ fn pick_up_power_ups(
                     power_ups_exhaust_timers
                         .weapon
                         .push(Timer::new(Duration::from_secs(7), TimerMode::Once));
-                    audio.play(audio_assets.power_up_weapon.clone()).with_volume(0.7);
+                    audio
+                        .play(audio_assets.power_up_weapon.clone())
+                        .with_volume(0.7);
                 }
             }
             commands.entity(entity).despawn();
@@ -221,7 +223,7 @@ fn tick_exhaust_timers(
     mut player_cannon_q: Query<&mut PlayerCannon>,
     time: Res<Time>,
     audio: Res<Audio>,
-    audio_assets: Res<AudioAssets>
+    audio_assets: Res<AudioAssets>,
 ) {
     let mut player_cannon = player_cannon_q.get_single_mut().unwrap();
     for timer in exhaust_timers.weapon.iter_mut() {
@@ -236,7 +238,9 @@ fn tick_exhaust_timers(
                 (current_timer_duration as f32 * 1.25) as u64,
             ));
             player_cannon.turn_rate = current_turn_rate * 0.75;
-            audio.play(audio_assets.power_up_weapon_exhaust.clone()).with_volume(0.7);
+            audio
+                .play(audio_assets.power_up_weapon_exhaust.clone())
+                .with_volume(0.7);
         }
     }
     exhaust_timers.weapon.retain(|timer| !timer.finished());

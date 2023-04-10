@@ -19,8 +19,8 @@ impl Plugin for MenuPlugin {
 
 #[derive(Resource)]
 pub struct ButtonColors {
-   pub normal: Color,
-   pub hovered: Color,
+    pub normal: Color,
+    pub hovered: Color,
 }
 
 impl Default for ButtonColors {
@@ -250,7 +250,7 @@ fn click_play_button(
             Interaction::Clicked => match action {
                 ButtonAction::PlayButton => {
                     state.set(GameState::Init);
-                },
+                }
                 ButtonAction::ExitButton => {
                     state.set(GameState::Exit);
                 }

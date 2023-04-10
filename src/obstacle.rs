@@ -4,12 +4,13 @@ use rand::Rng;
 use std::{f32::consts::PI, time::Duration};
 
 use crate::{
+    difficulty::Difficulty,
     environment::{Collidable, MAP_WIDTH},
     health::{Health, Mass},
     loading::{AudioAssets, TextureAssets},
     menu::MainCamera,
     power_up::PowerUp,
-    GameState, difficulty::Difficulty,
+    GameState,
 };
 
 pub struct ObstaclePlugin;
@@ -52,7 +53,6 @@ impl Default for ObstacleSpawnTimers {
         }
     }
 }
-
 
 fn spawn_obstacles(
     mut commands: Commands,

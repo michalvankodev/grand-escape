@@ -4,7 +4,7 @@ use std::time::Duration;
 use crate::actions::Actions;
 use crate::environment::{Collidable, MAP_HEIGHT, MAP_WIDTH};
 use crate::health::{Bullet, Health, Mass};
-use crate::loading::{TextureAssets, AudioAssets};
+use crate::loading::{AudioAssets, TextureAssets};
 use crate::menu::MainCamera;
 use crate::GameState;
 use bevy::prelude::*;
@@ -16,8 +16,29 @@ pub const PLAYER_HEIGHT: f32 = 64.;
 pub const PLAYER_WIDTH: f32 = 28.;
 pub const PLAYER_SIZE: Vec2 = Vec2::new(PLAYER_WIDTH, PLAYER_HEIGHT);
 
-
 pub struct PlayerPlugin;
+
+/// This plugin handles player related stuff like movement
+/// Player logic is only active during the State `GameState::Playing`
+impl Plugin for PlayerPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_system(spawn_player.in_schedule(OnEnter(GameState::Init)))
+            .add_system(despawn_player.in_schedule(OnEnter(GameState::Restart)))
+            .add_system(move_player.in_set(OnUpdate(GameState::Playing)))
+            .add_system(detect_collisions.in_set(OnUpdate(GameState::Playing)))
+            .add_system(
+                camera_follow_player
+                    .in_set(OnUpdate(GameState::Playing))
+                    .after(move_player),
+            )
+            .add_system(continuous_movement.in_set(OnUpdate(GameState::Playing)))
+            .add_system(move_player_cannon.in_set(OnUpdate(GameState::Playing)))
+            .add_system(player_shoot.in_set(OnUpdate(GameState::Playing)))
+            .add_system(detect_player_dead.in_set(OnUpdate(GameState::Playing)))
+            .add_system(display_boat_damage.in_set(OnUpdate(GameState::Playing)))
+            .add_system(rotate_transform_to_movement.in_set(OnUpdate(GameState::Playing)));
+    }
+}
 
 #[derive(Component)]
 pub struct Player;
@@ -42,28 +63,6 @@ impl Default for Movement {
             speed: 120.0,
             vector: Vec2::new(0., 1.),
         }
-    }
-}
-
-/// This plugin handles player related stuff like movement
-/// Player logic is only active during the State `GameState::Playing`
-impl Plugin for PlayerPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_system(spawn_player.in_schedule(OnEnter(GameState::Init)))
-            .add_system(despawn_player.in_schedule(OnEnter(GameState::Restart)))
-            .add_system(move_player.in_set(OnUpdate(GameState::Playing)))
-            .add_system(detect_collisions.in_set(OnUpdate(GameState::Playing)))
-            .add_system(
-                camera_follow_player
-                    .in_set(OnUpdate(GameState::Playing))
-                    .after(move_player),
-            )
-            .add_system(continuous_movement.in_set(OnUpdate(GameState::Playing)))
-            .add_system(move_player_cannon.in_set(OnUpdate(GameState::Playing)))
-            .add_system(player_shoot.in_set(OnUpdate(GameState::Playing)))
-            .add_system(detect_player_dead.in_set(OnUpdate(GameState::Playing)))
-            .add_system(display_boat_damage.in_set(OnUpdate(GameState::Playing)))
-            .add_system(rotate_transform_to_movement.in_set(OnUpdate(GameState::Playing)));
     }
 }
 
@@ -315,7 +314,6 @@ fn player_shoot(
                     )),
                     ..Default::default()
                 })
-                    // TODO 
                 .insert(Bullet::new(player))
                 .insert(Movement {
                     vector: player_cannon.vector,
@@ -323,7 +321,9 @@ fn player_shoot(
                     ..Default::default()
                 });
             player_cannon.timer.reset();
-            audio.play(audio_assets.bullet_fire.clone()).with_volume(0.7);
+            audio
+                .play(audio_assets.bullet_fire.clone())
+                .with_volume(0.7);
         }
     }
 }

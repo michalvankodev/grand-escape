@@ -1,6 +1,6 @@
 use std::{f32::consts::PI, time::Duration};
 
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::collide_aabb::collide};
 use bevy_kira_audio::{Audio, AudioControl};
 use rand::Rng;
 
@@ -131,14 +131,15 @@ fn spawn_pirates(
     time: Res<Time>,
     mut spawn_timers: ResMut<EnemySpawnTimers>,
     textures: Res<TextureAssets>,
+    obstacles_q: Query<(&Transform, &Collidable), Without<MainCamera>>,
     camera_query: Query<&Transform, With<MainCamera>>,
 ) {
     let camera_position = camera_query.get_single().unwrap().translation.y;
-    let next_spawn_position = camera_position + 600.;
+    let next_spawn_position = camera_position + 550.;
     for timer in &mut spawn_timers.pirate_ships {
         timer.tick(time.delta());
         if timer.finished() {
-            let position = get_random_pirate_spawn_position();
+            let position = get_random_pirate_spawn_position(&obstacles_q, next_spawn_position);
             let mut rng = rand::thread_rng();
             let random_angle = rng.gen_range(0.0..2. * PI);
             commands
@@ -188,10 +189,28 @@ fn spawn_pirates(
     }
 }
 
-pub fn get_random_pirate_spawn_position() -> f32 {
+pub fn get_random_pirate_spawn_position(
+    obstacles_q: &Query<(&Transform, &Collidable), Without<MainCamera>>,
+    y: f32,
+) -> f32 {
     let mut rng = rand::thread_rng();
-    rng.gen_range(40.0..MAP_WIDTH - 40.)
+    let x = rng.gen_range(40.0..MAP_WIDTH - 40.);
     // TODO Check if collides with obstacle
+    let is_colliding = obstacles_q
+        .iter()
+        .any(|(collidable_transform, collidable)| {
+            let collision = collide(
+                Vec3::new(x, y, 1.),
+                PIRATE_SIZE,
+                collidable_transform.translation,
+                collidable.size,
+            );
+            return collision.is_some();
+        });
+    if is_colliding {
+        return get_random_pirate_spawn_position(obstacles_q, y);
+    }
+    return x;
 }
 
 fn get_random_spawn_position() -> SpawnPosition {
