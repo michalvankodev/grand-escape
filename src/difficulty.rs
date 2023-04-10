@@ -28,8 +28,7 @@ fn change_difficulty(
     let score = game_score.score + game_score.distance_traveled as i32 / 50;
     match state.0 {
         Difficulty::Initial => {
-            // if score > 200 {
-            if score > 10 {
+            if score > 200 {
                 next_state.set(Difficulty::Medium);
             }
         }
